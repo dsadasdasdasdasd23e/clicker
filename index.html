@@ -310,7 +310,7 @@ const RATE='1 монета = 1 ₽', MIN_WD=100, OFFLINE_CAP=3*3600;
 /* ===================== */
 const tg=window.Telegram?.WebApp;tg?.ready();tg?.expand();
 const $=id=>document.getElementById(id);
-/* ---- браинроты: свои рисунки (SVG). Файлы img/0.png…img/9.png заменяют их автоматически ---- */
+/* ---- браинроты: свои рисунки (SVG). Файлы img/0.PNG…img/9.PNG заменяют их автоматически ---- */
 const E=(x,y,r=9)=>`<circle cx="${x}" cy="${y}" r="${r}" fill="#fff"/><circle cx="${x+1.5}" cy="${y+1.5}" r="${r/2.3}" fill="#000"/>`;
 const SV=s=>`<svg viewBox="0 0 100 100" stroke="#000" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round">${s}</svg>`;
 const ART0=[
@@ -333,8 +333,8 @@ ART0[5],
 SV(`<ellipse cx="46" cy="62" rx="38" ry="28" fill="#2f78d6"/><path d="M80 54q14-18 16-32 4 16-2 40z" fill="#2f78d6"/><path d="M12 68q32 24 64 4-32 22-64-4z" fill="#cfe8ff"/><path d="M22 34h34l-4-18H26z" fill="#fff"/><rect x="21" y="32" width="36" height="7" rx="3" fill="#1a2a6a"/><circle cx="39" cy="25" r="3.5" fill="#ffd400" stroke-width="1.5"/>${E(33,56,7)}${E(52,56,7)}<path d="M28 72q12 6 26 0" fill="none"/>`),
 SV(`<ellipse cx="50" cy="90" rx="28" ry="10" fill="#2fb34a"/><path d="M38 90Q14 70 22 40M50 90V30M62 90Q86 70 78 40" fill="none" stroke-width="13"/><path d="M38 90Q14 70 22 40M50 90V30M62 90Q86 70 78 40" fill="none" stroke="#2fb34a" stroke-width="7"/><circle cx="22" cy="34" r="12" fill="#2fb34a"/><circle cx="50" cy="22" r="14" fill="#2fb34a"/><circle cx="78" cy="34" r="12" fill="#2fb34a"/>${E(18,32,4.5)}${E(27,32,4.5)}${E(45,20,5)}${E(56,20,5)}${E(74,32,4.5)}${E(83,32,4.5)}`),
 ART0[8]];
-const HAS={};ART.forEach((_,i)=>{const im=new Image();im.onload=()=>{HAS[i]=1;render()};im.src='img/'+i+'.png'});
-const art=i=>HAS[i]?`<img src="img/${i}.png">`:ART[i];
+const HAS={};ART.forEach((_,i)=>{const im=new Image();im.onload=()=>{HAS[i]=1;render()};im.src='img/'+i+'.PNG'});
+const art=i=>HAS[i]?`<img src="img/${i}.PNG">`:ART[i];
 const IC={tap:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 1v3M12 20v3M1 12h3M20 12h3"/>',
 gamepad:'<rect x="2" y="7" width="20" height="11" rx="5"/><path d="M7 10v5M4.5 12.5h5"/><circle cx="16" cy="11.5" r=".9"/><circle cx="18.5" cy="14" r=".9"/>',
 box:'<path d="M3 8l9-5 9 5v9l-9 5-9-5z"/><path d="M3 8l9 5 9-5M12 13v9"/>',
@@ -393,7 +393,7 @@ function render(){
  $('nth').innerHTML=i<9?art(i+1):'';$('next').style.visibility=i<9?'visible':'hidden';
  $('ups').innerHTML=Object.keys(UP).map(k=>{const u=UP[k],l=S.lv[k],mx=l>=10,c=cost(k);
   return `<div class="card up"><div class="mi">${ic(u[4],26)}</div><div class="ti"><b>${u[0]} · ${l}/10</b><div class="sub">${u[1]}</div><div class="sub" style="color:#ffd9a8">${detail(k)}</div><div class="pips">${Array.from({length:10},(_,j)=>`<i class="${j<l?'on':''}"></i>`).join('')}</div></div><button class="bt" ${mx?'data-max="1" disabled':`data-p="${c}"`} onclick="buy('${k}')">${mx?'MAX':'<i class="coin s"></i>'+c}</button></div>`}).join('');
- $('cases').innerHTML=CASES.map((c,i)=>`<button class="cc" data-p="${c.p}" onclick="openCase(${i})"><div class="tag">до ×5</div><div class="cimg"><img src="img/case${i+1}.png" alt=""></div><div class="cn">${c.n}</div><div class="cf"><span>5 призов</span><span class="price"><i class="coin s"></i>${c.p}</span></div></button>`).join('');
+ $('cases').innerHTML=CASES.map((c,i)=>`<button class="cc" data-p="${c.p}" onclick="openCase(${i})"><div class="tag">до ×5</div><div class="cimg"><img src="img/case${i+1}.PNG" alt=""></div><div class="cn">${c.n}</div><div class="cf"><span>5 призов</span><span class="price"><i class="coin s"></i>${c.p}</span></div></button>`).join('');
  $('shop').innerHTML=SHOP.map(b=>`<div class="pc"><div class="pa" style="--pc:${b.c}">${art(b.a)}</div>${rar(b.a)}<div class="pn">${b.n} ×${S.own[b.id]||0}</div><div class="pi">+${b.inc} монет в минуту</div><button class="bt w" data-p="${b.p}" onclick="buyB('${b.id}')">Купить <span class="price" style="padding:3px 9px;background:#0003"><i class="coin s"></i>${b.p}</span></button></div>`).join('');
  $('drops').innerHTML=S.drops.length?S.drops.map(d=>`<div class="dc" style="border-color:${d.m>=1?'#2fa056':'#a8344a'};color:${d.m>=1?'#6dffa0':'#ff7a8a'}">×${d.m}<small>${f(d.w)} монет</small></div>`).join(''):'<div class="sub">Открой первый кейс</div>';
  const av=u=>u?.photo_url?`<img src="${u.photo_url}">`:(u?.first_name||'?')[0];
