@@ -442,8 +442,8 @@ const rar=i=>`<span class="rar" style="background:${BR[i][2]}${i===9?';color:#00
 let REFS=[],STAR_RATE=1.5,REF_REW=1;
 const TU=tg?.initDataUnsafe?.user;
 function toast(t){const x=$('toast');x.textContent=t;x.style.display='block';x.classList.remove('show');void x.offsetWidth;x.classList.add('show');clearTimeout(x._t);x._t=setTimeout(()=>x.style.display='none',2200)}
-function add(n){S.c=Math.max(0,S.c+n);head()}
-function head(){
+function add(n){S.c=Math.max(0,S.c+n);hud()}
+function hud(){
  $('coins').textContent=f(Math.max(0,S.c-PEND));$('en').textContent=Math.floor(S.e)+' / '+maxE();
  $('ebar').style.width=(S.e/maxE()*100)+'%';
  {const mx=S.lv.click>=10,c=cost('click');$('lvn').textContent=S.lv.click+' / 10';
@@ -471,7 +471,7 @@ function render(){
  document.querySelectorAll('[data-a]').forEach(el=>el.innerHTML=art(+el.dataset.a));
  document.querySelectorAll('[data-ic]').forEach(el=>el.innerHTML=ic(el.dataset.ic,+el.dataset.s||24));
  {const hk=Object.keys(HAS).length;if(window._bgk!==hk){window._bgk=hk;buildBg()}}
- renderNav();bonusUi();$('rt').textContent=RATE;head();
+ renderNav();bonusUi();$('rt').textContent=RATE;hud();
 }
 
 function renderProf(){
@@ -634,7 +634,7 @@ $('brain').addEventListener('pointerdown',e=>{
  const d=document.createElement('div');d.className='fl';d.textContent='+'+g.toFixed(2);d.style.left=(e.clientX-24)+'px';d.style.top=(e.clientY-40)+'px';document.body.appendChild(d);setTimeout(()=>d.remove(),800)});
 setInterval(()=>{const now=Date.now();
  const re=Math.floor((now-S.le)/30000);if(re>0){S.e=Math.min(maxE(),S.e+re);S.le+=re*30000}
- const r=onRate();if(r>0)S.c+=r;head();save()},1000);
+ const r=onRate();if(r>0)S.c+=r;hud();save()},1000);
 (function(){const dt=Math.min(OFFLINE_CAP,(Date.now()-S.last)/1000);
  if(dt>30&&offRate()>0){const g=offRate()*dt;S.c+=g;setTimeout(()=>toast('Пока тебя не было: +'+f(g)),500)}
  const re=Math.floor((Date.now()-S.le)/30000);if(re>0){S.e=Math.min(maxE(),S.e+re);S.le+=re*30000}})();
@@ -652,7 +652,7 @@ const balls=[],hit={},parts=[];
 const slotCol=m=>m>=8?'#ffc93a':m>=2?'#ff8a3a':m>=1?'#ff6a80':'#9b7bff';
 $('pbets').innerHTML=['0.1','0.5','1','5','MAX'].map(v=>`<button class="bt" onclick="$('pb').value=${v==='MAX'?'+S.c.toFixed(2)':v}">${v}</button>`).join('');
 $('pgo').onclick=()=>{const b=+$('pb').value;if(!(b>=.01)||b>S.c){toast('Недостаточно монет');return}
- S.c-=b;head();let kk=0;for(let i=0;i<6;i++)kk+=Math.random()<.5?1:0;   // слот выбирается честной вероятностью (биномиальное распределение)
+ S.c-=b;hud();let kk=0;for(let i=0;i<6;i++)kk+=Math.random()<.5?1:0;   // слот выбирается честной вероятностью (биномиальное распределение)
  balls.push({x:W/2+(Math.random()-.5)*14,y:14,vx:(Math.random()-.5)*.6,vy:0,b,tx:X0+kk*SW+SW/2})};
 function step(){
  for(const o of balls){
@@ -730,7 +730,7 @@ const SEG=24,RK=1.9;
 })();
 let rot=0,spin=false;
 function rb(c){if(spin)return;const b=+$('rb').value;if(!(b>=.01)||b>S.c){toast('Недостаточно монет');return}
- S.c-=b;head();spin=true;const res=Math.random()<.5?'r':'b';
+ S.c-=b;hud();spin=true;const res=Math.random()<.5?'r':'b';
  const k=res==='r'?1+2*Math.floor(Math.random()*12):2*Math.floor(Math.random()*12);
  const a=360/SEG,center=k*a+a/2+(Math.random()-.5)*a*.6;
  rot=rot-(rot%360)+360*6+(360-center);
@@ -794,8 +794,8 @@ function payStars(){const n=Math.floor(+$('sn').value);if(!(n>=1)){toast('Ука
 function req(type){
  const a=+$(type==='deposit'?'da':'wa').value;if(!(a>0)){toast('Укажи сумму');return}
  let d='';if(type==='withdraw'){d=$('wd').value.trim();if(a<MIN_WD){toast('Минимум '+MIN_WD);return}if(a>S.c){toast('Недостаточно монет');return}if(!d){toast('Укажи реквизиты');return}}
- if(type==='withdraw'){S.c-=a;S.out=(S.out||0)+a;save();head();renderProf()}   // монеты списываются сразу; при отказе бот пришлёт кнопку возврата
- if(!sendReq(type,a,d)){if(type==='withdraw'){S.c+=a;S.out-=a;save();head();renderProf()}return}
+ if(type==='withdraw'){S.c-=a;S.out=(S.out||0)+a;save();hud();renderProf()}   // монеты списываются сразу; при отказе бот пришлёт кнопку возврата
+ if(!sendReq(type,a,d)){if(type==='withdraw'){S.c+=a;S.out-=a;save();hud();renderProf()}return}
 }
 
 /* навигация */
