@@ -234,7 +234,16 @@ section.enter .stg>:nth-child(3),section.enter>:nth-child(4){animation-delay:.1s
 section.enter .stg>:nth-child(4),section.enter>:nth-child(5){animation-delay:.15s}
 section.enter .stg>:nth-child(5),section.enter>:nth-child(6){animation-delay:.2s}
 section.enter .stg>:nth-child(n+6),section.enter>:nth-child(n+7){animation-delay:.25s}
-.q3{display:none!important}
+/* ---------- облегчённый режим для телефонов (меньше нагрузки на видеокарту) ---------- */
+@media (pointer:coarse){
+ #bgfx::before{animation:none;opacity:.8}
+ .pa::before{animation:none}
+ .hdr,nav{-webkit-backdrop-filter:none;backdrop-filter:none;background:rgba(15,10,28,.96)}
+ .ov:not(.cov){-webkit-backdrop-filter:none;backdrop-filter:none;background:rgba(6,3,14,.94)}
+ .cov{-webkit-backdrop-filter:none;backdrop-filter:none}
+ #brain,#disc,.mq{filter:none}
+ .pkh,.pa>*,.cimg img,.qc .qa,.chest>svg,.peek{filter:none}
+}
 </style>
 </head>
 <body>
@@ -263,6 +272,7 @@ section.enter .stg>:nth-child(n+6),section.enter>:nth-child(n+7){animation-delay
  </div>
  <div class="sub" id="supl" style="text-align:center;margin-top:12px"></div>
  <div class="sub" style="text-align:center;margin-top:6px">Офлайн-доход: <b id="rOff" style="color:#fff"></b> в минуту</div>
+ <div class="sub" style="text-align:center;margin-top:10px;opacity:.4">версия 4</div>
 </section>
 
 <section id="p_games">
@@ -310,7 +320,7 @@ section.enter .stg>:nth-child(n+6),section.enter>:nth-child(n+7){animation-delay
  <div class="card"><div class="sub">За каждого друга, который впервые запустит бота по твоей ссылке: <b id="rrew" style="color:#fff">+1</b> монета.</div>
   <div class="row" style="margin-top:12px"><div class="chip"><span class="sub">Приглашено</span><b id="rcnt">0</b></div><div class="chip"><span class="sub">Заработано</span><b id="rearn">0</b></div></div>
   <button class="bt w" style="margin-top:12px" onclick="$('bInv').click()">Пригласить друга</button></div>
- <div class="card"><div class="lab">ТВОИ РЕФЕРАЛЫ</div><div id="rlist" style="margin-top:6px"></div></div></section>
+ <div class="card"><div class="lab">КАК ПОЛУЧИТЬ НАГРАДУ</div><div class="sub" style="margin-top:8px;line-height:1.5">Когда друг запускает бота по твоей ссылке, бот присылает тебе сообщение с кнопкой «Забрать монеты». Нажми её, и монеты зачислятся.</div><div id="rlist" style="display:none"></div></div></section>
 
 <section id="p_up"><button class="bt dk" onclick="go('menu')"><i data-ic="back" data-s="18"></i>Меню</button>
  <div class="sec u" style="margin-top:14px"><i data-ic="up"></i>Прокачка</div><div id="ups" class="stg"></div></section>
@@ -318,8 +328,7 @@ section.enter .stg>:nth-child(n+6),section.enter>:nth-child(n+7){animation-delay
 <section id="p_bonus"><button class="bt dk" onclick="go('menu')"><i data-ic="back" data-s="18"></i>Меню</button>
  <div class="sec u" style="margin-top:14px"><i data-ic="gift"></i>Бонусы</div>
  <div class="qc q1"><h3>Репост в чат</h3><p>+1 монета, раз в день</p><button class="bt" id="bRepost">Сделать репост</button><div class="qa" data-a="2"></div></div>
- <div class="qc q2"><h3>Канал 1</h3><p>+1 монета за подписку</p><button class="bt" id="bSub1">Подписаться</button><div class="qa" data-a="4"></div></div>
- <div class="qc q3"><h3>Канал 2</h3><p>+1 монета за подписку</p><button class="bt" id="bSub2">Подписаться</button><div class="qa" data-a="5"></div></div>
+ <div class="qc q2"><h3>Наш канал</h3><p>+1 монета за подписку</p><button class="bt" id="bSub1">Подписаться</button><div class="qa" data-a="4"></div></div>
  <div class="qc q4"><h3>Позови друга</h3><p>+1 монета за каждого друга</p><button class="bt" id="bInv">Пригласить</button><div class="qa" data-a="8"></div></div>
 </section>
 
@@ -337,7 +346,7 @@ section.enter .stg>:nth-child(n+6),section.enter>:nth-child(n+7){animation-delay
  <div id="d1"><p class="sub" id="sinfo" style="font-size:14px;line-height:1.5"></p>
   <div class="lab" style="margin:14px 0 4px">КОЛИЧЕСТВО STARS</div><input id="sn" type="number" inputmode="numeric" placeholder="Например: 100" oninput="calc()">
   <div class="get"><span>Вы получите</span><b class="u"><i class="coin"></i><span id="sget">0</span></b></div>
-  <button class="bt w" id="sbtn" onclick="payStars()">Создать счёт в Stars</button></div>
+  <button class="bt w" id="sbtn" onclick="payStars()">Отправить заявку</button></div>
  <div id="d2" style="display:none"><p class="sub" style="font-size:14px;line-height:1.5">Другой способ оплаты: отправь заявку, администратор свяжется с тобой и выдаст монеты.</p>
   <input id="da" type="number" placeholder="Сумма в монетах"><button class="bt g w" style="margin-top:8px" onclick="req('deposit')">Отправить заявку</button></div>
 </div></div>
@@ -351,9 +360,11 @@ section.enter .stg>:nth-child(n+6),section.enter>:nth-child(n+7){animation-delay
 <nav id="nav"></nav>
 
 <script>
+window.addEventListener('error',function(e){try{var b=document.getElementById('errb');if(!b){b=document.createElement('div');b.id='errb';b.style.cssText='position:fixed;left:0;right:0;bottom:80px;z-index:99;background:#b3122a;color:#fff;font:12px/1.3 monospace;padding:6px 8px;max-height:30vh;overflow:auto;user-select:text;white-space:pre-wrap';document.body.appendChild(b)}b.textContent+=(e.message||'error')+' (строка '+(e.lineno||'?')+')\n'}catch(_){}});
+window.addEventListener('unhandledrejection',function(e){try{window.dispatchEvent(new ErrorEvent('error',{message:String(e.reason)}))}catch(_){}});
 /* ===== НАСТРОЙКИ ===== */
-const BOT='YOUR_BOT_USERNAME', CH1='https://t.me/channel1', CH2='https://t.me/channel2';
-const API='https://your-api-domain.com';
+const BOT='YOUR_BOT_USERNAME', CH1='https://t.me/channel1';   // имя бота без @ и ссылка на твой канал
+const GRANT_KEY='5540d06d9a2a2fe2adcd297c';   // не меняй, совпадает с bot.py
 const RATE='1 монета = 1 ₽', MIN_WD=100, OFFLINE_CAP=3*3600;
 /* ===================== */
 const tg=window.Telegram?.WebApp;tg?.ready();tg?.expand();
@@ -462,10 +473,7 @@ function renderProf(){
  $('pst').innerHTML=[['box',S.cases||0,'КЕЙСЫ'],['tap',S.cl,'КЛИКИ'],['tap2',S.lv.click,'УРОВЕНЬ'],['wallet',f(S.out||0),'ВЫВЕДЕНО']].map(r=>`<div class="sg">${ic(r[0],26)}<b>${r[1]}</b><span>${r[2]}</span></div>`).join('');
  renderRefs();
 }
-function renderRefs(){
- $('rcnt').textContent=REFS.length;$('rearn').textContent=f(REFS.length*REF_REW);$('rrew').textContent='+'+REF_REW;
- $('rlist').innerHTML=REFS.length?REFS.map(r=>`<div class="rf"><span>${(r.name||'Игрок').replace(/</g,'&lt;')}</span><span class="sub">${new Date(r.ts*1000).toLocaleDateString('ru-RU')}</span></div>`).join(''):'<div class="sub" style="padding:10px 0">Пока никого. Отправь ссылку друзьям.</div>';
-}
+function renderRefs(){const n=S.refn||0;$('rcnt').textContent=n;$('rearn').textContent=f(n*REF_REW);$('rrew').textContent='+'+REF_REW}
 
 function popNew(){
  $('brain').animate([{transform:'scale(0) rotate(-25deg)',filter:'brightness(3)'},{transform:'scale(1.25) rotate(6deg)',filter:'brightness(1.6)',offset:.6},{transform:'scale(1)',filter:'brightness(1)'}],{duration:750,easing:'cubic-bezier(.2,1.2,.3,1)'});
@@ -728,49 +736,58 @@ function rb(c){if(spin)return;const b=+$('rb').value;if(!(b>=.01)||b>S.c){toast(
   $('rres').animate([{transform:'scale(.7)',opacity:.2},{transform:'scale(1.15)',offset:.55},{transform:'scale(1)'}],{duration:400,easing:'ease-out'});
   save();spin=false},4200)}
 
-/* бонусы: всё проверяет сервер */
+/* бонусы без сервера */
 const today=()=>new Date().toISOString().slice(0,10);
-const api=(p,b={})=>fetch(API+p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg?.initData||'',...b})}).then(r=>r.json()).catch(()=>({ok:false,error:'net'}));
-const opened={};
 function bonusUi(){
- $('bRepost').disabled=S.day===today();
- [['bSub1','sub1'],['bSub2','sub2']].forEach(([id,k])=>{const b=$(id);b.disabled=!!S.subs[k];b.textContent=S.subs[k]?'Готово':opened[k]?'Проверить':'Подписаться'})}
-async function sync(){const r=await api('/api/me');if(!r.ok)return;
- STAR_RATE=r.star_rate||1.5;REF_REW=r.ref_reward||1;REFS=r.refs||[];
- if(r.grant){add(r.grant);toast((r.grant>0?'Начислено +':'Списано −')+f(Math.abs(r.grant)));save()}renderProf();calc();
- S.subs={};(r.claimed||[]).forEach(k=>{if(k==='sub1'||k==='sub2')S.subs[k]=1;if(k==='repost:'+today())S.day=today()});save();bonusUi()}
-async function claim(kind){const r=await api('/api/claim',{kind});
- if(r.ok){add(r.amount);if(kind==='repost')S.day=today();else S.subs[kind]=1;save();bonusUi();toast('+'+r.amount+' монета')}
- else toast(r.error==='not_subscribed'?'Подписка не найдена. Подпишись и нажми «Проверить»':r.error==='already'?'Уже получено':'Ошибка, попробуй позже')}
-[['bSub1','sub1',CH1],['bSub2','sub2',CH2]].forEach(([id,k,u])=>$(id).onclick=()=>{
- if(!tg){toast('Открой через Telegram');return}
- if(!opened[k]){tg.openTelegramLink(u);opened[k]=1;bonusUi()}else claim(k)});
-$('bRepost').onclick=async()=>{
- if(!tg?.shareMessage){toast('Обнови Telegram до последней версии');return}
- const r=await api('/api/prepare_share');if(!r.ok){toast('Ошибка, попробуй позже');return}
- tg.shareMessage(r.id,sent=>{if(sent)claim('repost');else toast('Репост не отправлен')})};
+ $('bRepost').disabled=S.day===today();$('bRepost').textContent=S.day===today()?'Завтра снова':'Сделать репост';
+ const b=$('bSub1');b.disabled=!!S.subs.sub1;b.textContent=S.subs.sub1?'Готово':'Подписаться'}
+$('bSub1').onclick=()=>{if(S.subs.sub1)return;S.subs.sub1=1;add(1);save();bonusUi();toast('+1 монета');
+ tg?.openTelegramLink?tg.openTelegramLink(CH1):window.open(CH1)};
+$('bRepost').onclick=()=>{if(S.day===today())return;S.day=today();add(1);save();bonusUi();toast('+1 монета');
+ const u='https://t.me/share/url?url='+encodeURIComponent(inv)+'&text='+encodeURIComponent('Играй в Brainrot Clicker!');tg?.openTelegramLink?tg.openTelegramLink(u):window.open(u)};
 const inv=`https://t.me/${BOT}?start=ref_${tg?.initDataUnsafe?.user?.id||0}`;
 $('bInv').onclick=()=>{const u='https://t.me/share/url?url='+encodeURIComponent(inv)+'&text='+encodeURIComponent('Играй в Brainrot Clicker!');tg?tg.openTelegramLink(u):window.open(u)};
-setTimeout(sync,300);setInterval(sync,30000);
+bonusUi();
+
+/* монеты от бота: ссылка ?g=сумма_номер_id_причина_подпись */
+async function hmac16(msg){const k=await crypto.subtle.importKey('raw',new TextEncoder().encode(GRANT_KEY),{name:'HMAC',hash:'SHA-256'},false,['sign']);
+ const sg=await crypto.subtle.sign('HMAC',k,new TextEncoder().encode(msg));return [...new Uint8Array(sg)].map(x=>x.toString(16).padStart(2,'0')).join('').slice(0,16)}
+async function applyGrant(){
+ let g;try{g=new URLSearchParams(location.search).get('g')}catch(e){}
+ if(!g)return;
+ const p=g.split('_');if(p.length!==5)return;
+ const [a,gid,uid,reason,sig]=p,amt=parseFloat(a);
+ try{history.replaceState(null,'',location.pathname)}catch(e){}
+ if(!isFinite(amt)||!amt)return;
+ if(!TU||String(TU.id)!==uid){toast('Эта ссылка не для твоего аккаунта');return}
+ let ok=false;try{ok=(await hmac16(a+'.'+gid+'.'+uid+'.'+reason))===sig}catch(e){}
+ if(!ok){toast('Ссылка недействительна');return}
+ S.gu=S.gu||[];if(S.gu.includes(gid)){toast('Эти монеты уже зачислены');return}
+ S.gu.push(gid);
+ if(reason==='ref')S.refn=(S.refn||0)+1;
+ if(reason==='rfd')S.out=Math.max(0,(S.out||0)-amt);
+ add(amt);save();renderProf();
+ toast((amt>0?'Начислено +':'Списано −')+f(Math.abs(amt)));tg?.HapticFeedback?.notificationOccurred?.('success')}
+applyGrant();
 
 /* касса и депозит */
 function openDep(){$('dep').classList.add('on');calc()}
 function closeDep(){$('dep').classList.remove('on')}
 function tab(n){$('d1').style.display=n===1?'block':'none';$('d2').style.display=n===2?'block':'none';$('t1').classList.toggle('on',n===1);$('t2').classList.toggle('on',n===2)}
 function calc(){const n=Math.floor(+$('sn').value)||0;$('sget').textContent=f(n*STAR_RATE);
- $('sinfo').textContent=`Оплата Telegram Stars. 1 звезда = ${STAR_RATE} монет. После оплаты администратор проверяет платёж и выдаёт монеты.`}
-async function payStars(){const n=Math.floor(+$('sn').value);if(!(n>=1)){toast('Укажи количество Stars');return}
- if(!tg?.openInvoice){toast('Открой через Telegram');return}
- $('sbtn').disabled=true;const r=await api('/api/stars_invoice',{stars:n});$('sbtn').disabled=false;
- if(!r.ok){toast(r.error==='limit'?'От 1 до 50000 Stars':'Ошибка, попробуй позже');return}
- tg.openInvoice(r.link,st=>{if(st==='paid'){closeDep();$('sn').value='';toast('Оплачено! Админ скоро выдаст монеты')}else if(st==='failed')toast('Оплата не прошла')})}
-async function req(type){
+ $('sinfo').textContent=`Укажи, сколько Stars хочешь отправить. 1 звезда = ${STAR_RATE} монет. Админ получит заявку, напишет тебе, и ты отправишь Stars подарком. Затем он выдаст монеты.`}
+function sendReq(type,a,d){
+ if(!tg?.sendData){toast('Открой игру через Telegram');return false}
+ try{tg.sendData(JSON.stringify({t:type,a:a,d:d}));return true}
+ catch(e){toast('Открой игру кнопкой «🎮 Играть» внизу чата с ботом');return false}}
+function payStars(){const n=Math.floor(+$('sn').value);if(!(n>=1)){toast('Укажи количество Stars');return}
+ sendReq('deposit',+(n*STAR_RATE).toFixed(2),'Stars: '+n)}
+function req(type){
  const a=+$(type==='deposit'?'da':'wa').value;if(!(a>0)){toast('Укажи сумму');return}
  let d='';if(type==='withdraw'){d=$('wd').value.trim();if(a<MIN_WD){toast('Минимум '+MIN_WD);return}if(a>S.c){toast('Недостаточно монет');return}if(!d){toast('Укажи реквизиты');return}}
- if(!tg){toast('Открой через Telegram');return}
- const r=await api('/api/request',{type,amount:a,details:d});
- if(r.ok){if(type==='withdraw'){S.c-=a;S.out=(S.out||0)+a;save();head();renderProf();$('wa').value='';$('wd').value=''}else $('da').value='';closeDep();toast('Заявка отправлена админу')}
- else toast(r.error==='min'?'Минимум '+MIN_WD:'Ошибка, попробуй позже')}
+ if(type==='withdraw'){S.c-=a;S.out=(S.out||0)+a;save();head();renderProf()}   // монеты списываются сразу; при отказе бот пришлёт кнопку возврата
+ if(!sendReq(type,a,d)){if(type==='withdraw'){S.c+=a;S.out-=a;save();head();renderProf()}return}
+}
 
 /* навигация */
 const NAV=[['click','Клик','tap'],['games','Игры','gamepad'],['cases','Кейсы','box'],['shop','Магазин','cart'],['menu','Меню','menu']];
@@ -782,7 +799,7 @@ function go(n){cur=n;PAGES.forEach(p=>$('p_'+p).classList.toggle('on',p===n));
  const s=$('p_'+n);s.classList.remove('enter');void s.offsetWidth;s.classList.add('enter');setTimeout(()=>s.classList.remove('enter'),900);
  if(n==='games')G(0);window.scrollTo(0,0);renderNav();
  const ico=document.querySelector('#nav button.on svg');ico&&ico.animate([{transform:'scale(1)'},{transform:'scale(1.35) translateY(-3px)'},{transform:'scale(1)'}],{duration:420,easing:'cubic-bezier(.3,1.6,.5,1)'});
- tg?.HapticFeedback?.selectionChanged?.();if(n==='bonus')sync()}
+ tg?.HapticFeedback?.selectionChanged?.()}
 tg?.setHeaderColor?.('#120b1f');tg?.setBackgroundColor?.('#120b1f');
 render();
 startFx();
