@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Unbounded:wght@700;800&display=swap" rel="stylesheet">
 <style>
 :root{--or:#ff9a3c;--or2:#ff6a00;--mut:#a99cc9;--rc:#ff9a3c;--line:rgba(255,255,255,.09);--nav:70px;--ease:cubic-bezier(.2,.9,.3,1.15)}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;touch-action:manipulation}
 html,body{overflow-x:clip;max-width:100vw}
 body{margin:0;font-family:'Manrope',system-ui,sans-serif;font-weight:600;color:#fff;min-height:100vh;padding-bottom:92px;
  background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(255,130,40,.26),transparent 60%),radial-gradient(ellipse 60% 40% at 100% 65%,rgba(110,60,220,.2),transparent 60%),#0f0a1c;background-attachment:fixed}
@@ -272,7 +272,6 @@ section.enter .stg>:nth-child(n+6),section.enter>:nth-child(n+7){animation-delay
  </div>
  <div class="sub" id="supl" style="text-align:center;margin-top:12px"></div>
  <div class="sub" style="text-align:center;margin-top:6px">Офлайн-доход: <b id="rOff" style="color:#fff"></b> в минуту</div>
- <div class="sub" style="text-align:center;margin-top:10px;opacity:.4">версия 4</div>
 </section>
 
 <section id="p_games">
@@ -418,9 +417,19 @@ const UP={click:['Уровень кликера','Больше монет за �
 const SHOP=[{id:'garama',a:6,n:'Гарама и Мадундунг',p:70,inc:1,c:'#5b3fd0'},{id:'dragon',a:9,n:'Драгон Каннеллони',p:1400,inc:25,c:'#c4233b'}];
 const CASES=[{n:'Капучино кейс',p:5,c:'#c9792a',a:1},{n:'Гарама кейс',p:50,c:'#ffb000',a:6}];
 const PRIZES=[[.2,40],[.6,30],[1,15],[2,10],[5,5]];
-let S=JSON.parse(localStorage.getItem('br3')||'null')||{c:0,e:50,lv:{click:1,farm:0,auto:0,sup:0,en:1},cl:0,own:{},day:'',subs:{},used:{},last:Date.now(),le:Date.now()};
+/* безопасный доступ к localStorage: в некоторых мобильных WebView (в т.ч. Telegram на телефоне)
+   обращение к localStorage может кидать исключение (приватный режим, запрет сторонних данных и т.п.).
+   Без этой защиты такое исключение останавливало выполнение ВСЕГО скрипта ниже — отсюда "дизайн есть,
+   а кнопки не работают". Теперь при ошибке просто работаем в памяти, без сохранения между сессиями. */
+const safeLS={
+ get(k){try{return localStorage.getItem(k)}catch(e){return this._mem&&this._mem[k]||null}},
+ set(k,v){try{localStorage.setItem(k,v)}catch(e){this._mem=this._mem||{};this._mem[k]=v}}
+};
+let S;
+try{S=JSON.parse(safeLS.get('br3')||'null')||null}catch(e){S=null}
+S=S||{c:0,e:50,lv:{click:1,farm:0,auto:0,sup:0,en:1},cl:0,own:{},day:'',subs:{},used:{},last:Date.now(),le:Date.now()};
 S.drops=S.drops||[];
-const save=()=>{S.last=Date.now();localStorage.setItem('br3',JSON.stringify(S))};
+const save=()=>{S.last=Date.now();try{safeLS.set('br3',JSON.stringify(S))}catch(e){}};
 const f=n=>n.toFixed(2);
 let PEND=0;
 const maxE=()=>50+10*(S.lv.en-1);
