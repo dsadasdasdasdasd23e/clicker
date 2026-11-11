@@ -497,7 +497,7 @@ function render(){
 function renderProf(){
  $('pname').textContent=TU?[TU.first_name,TU.last_name].filter(Boolean).join(' '):'Игрок';
  $('puser').textContent=TU?.username?'@'+TU.username:'';
- $('pid').textContent=TU?'ID: '+TU.id:'Открыто вне Telegram [DEBUG: tg='+(!!tg)+' plat='+(tg?.platform||'-')+' ver='+(tg?.version||'-')+' init='+(INIT?INIT.length:'0')+' ua='+navigator.userAgent.slice(0,40)+']';
+ $('pid').textContent=TU?'ID: '+TU.id:'Открыто вне Telegram [DEBUG2: tg='+(!!tg)+' plat='+(tg?.platform||'-')+' ver='+(tg?.version||'-')+' init='+(INIT?INIT.length:'0')+' hash='+(location.hash?location.hash.length:'0')+' search='+(location.search?location.search.length:'0')+' unsafe='+JSON.stringify(tg?.initDataUnsafe||{}).slice(0,80)+' href='+location.href.slice(0,90)+']';
  $('pbal').textContent=f(S.c);
  $('best').textContent=S.best?`×${S.best.m} · ${f(S.best.w)} монет · ${S.best.n}`:'Пока пусто — открой кейс, чтобы тут появился лучший дроп';
  $('pst').innerHTML=[['box',S.cases||0,'КЕЙСЫ'],['tap',S.cl,'КЛИКИ'],['tap2',S.lv.click,'УРОВЕНЬ'],['wallet',f(S.out||0),'ВЫВЕДЕНО']].map(r=>`<div class="sg">${ic(r[0],26)}<b>${r[1]}</b><span>${r[2]}</span></div>`).join('');
