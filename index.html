@@ -363,6 +363,7 @@ window.addEventListener('error',function(e){try{var b=document.getElementById('e
 window.addEventListener('unhandledrejection',function(e){try{window.dispatchEvent(new ErrorEvent('error',{message:String(e.reason)}))}catch(_){}});
 /* ===== НАСТРОЙКИ ===== */
 const BOT='Brainclick_bot', CH1='https://t.me/Brainclik';   // имя бота без @ и ссылка на твой канал
+const API_BASE='https://48-102-163-109.nip.io';   // публичный HTTPS-адрес, на котором крутится bot.py (API)
 const GRANT_KEY='5540d06d9a2a2fe2adcd297c';   // не меняй, совпадает с bot.py
 const RATE='1 монета = 1 ₽', MIN_WD=100, OFFLINE_CAP=3*3600;
 /* ===================== */
@@ -441,6 +442,25 @@ const cost=k=>+(UP[k][3]*Math.pow(1.9,S.lv[k]-UP[k][2])).toFixed(2);
 const rar=i=>`<span class="rar" style="background:${BR[i][2]}${i===9?';color:#00222a':''}">${BR[i][1]}</span>`;
 let REFS=[],STAR_RATE=1.5,REF_REW=1;
 const TU=tg?.initDataUnsafe?.user;
+const INIT=tg?.initData||'';   // «сырая» строка initData — её бот проверяет подписью, initDataUnsafe для этого не годится
+/* запрос к API бота (проверка подписки, рефералы, заявки на пополнение/вывод) */
+async function api(path,body){
+ if(!INIT)return{ok:false,error:'no_init'};   // открыто не из Telegram — серверные функции недоступны
+ try{
+  const r=await fetch(API_BASE+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({initData:INIT},body||{}))});
+  return await r.json();
+ }catch(e){return{ok:false,error:'network'}}
+}
+async function syncServer(){
+ const r=await api('/api/me',{});
+ if(!r.ok)return;
+ if(r.grant)add(r.grant);
+ if(r.star_rate)STAR_RATE=r.star_rate;
+ if(r.ref_reward)REF_REW=r.ref_reward;
+ REFS=r.refs||[];S.refn=REFS.length;
+ (r.claimed||[]).forEach(k=>{if(k==='sub1')S.subs.sub1=1;if(k.startsWith('repost:'))S.day=today()});
+ save();render();
+}
 function toast(t){const x=$('toast');x.textContent=t;x.style.display='block';x.classList.remove('show');void x.offsetWidth;x.classList.add('show');clearTimeout(x._t);x._t=setTimeout(()=>x.style.display='none',2200)}
 function add(n){S.c=Math.max(0,S.c+n);hud()}
 function hud(){
@@ -476,13 +496,16 @@ function render(){
 
 function renderProf(){
  $('pname').textContent=TU?[TU.first_name,TU.last_name].filter(Boolean).join(' '):'Игрок';
- $('puser').textContent=TU?.username?'@'+TU.username:'';$('pid').textContent=TU?'ID: '+TU.id:'Открыто вне Telegram';
+ $('puser').textContent=TU?.username?'@'+TU.username:'';
+ $('pid').textContent=TU?'ID: '+TU.id:'Открыто вне Telegram [DEBUG: tg='+(!!tg)+' plat='+(tg?.platform||'-')+' ver='+(tg?.version||'-')+' init='+(INIT?INIT.length:'0')+' ua='+navigator.userAgent.slice(0,40)+']';
  $('pbal').textContent=f(S.c);
  $('best').textContent=S.best?`×${S.best.m} · ${f(S.best.w)} монет · ${S.best.n}`:'Пока пусто — открой кейс, чтобы тут появился лучший дроп';
  $('pst').innerHTML=[['box',S.cases||0,'КЕЙСЫ'],['tap',S.cl,'КЛИКИ'],['tap2',S.lv.click,'УРОВЕНЬ'],['wallet',f(S.out||0),'ВЫВЕДЕНО']].map(r=>`<div class="sg">${ic(r[0],26)}<b>${r[1]}</b><span>${r[2]}</span></div>`).join('');
  renderRefs();
 }
-function renderRefs(){const n=S.refn||0;$('rcnt').textContent=n;$('rearn').textContent=f(n*REF_REW);$('rrew').textContent='+'+REF_REW}
+function renderRefs(){const n=S.refn||0;$('rcnt').textContent=n;$('rearn').textContent=f(n*REF_REW);$('rrew').textContent='+'+REF_REW;
+ const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const rl=$('rlist');if(REFS.length){rl.style.display='block';rl.innerHTML=REFS.map(r=>`<div class="sub" style="padding:4px 0">• ${esc(r.name)}</div>`).join('')}else rl.style.display='none'}
 
 function popNew(){
  $('brain').animate([{transform:'scale(0) rotate(-25deg)',filter:'brightness(3)'},{transform:'scale(1.25) rotate(6deg)',filter:'brightness(1.6)',offset:.6},{transform:'scale(1)',filter:'brightness(1)'}],{duration:750,easing:'cubic-bezier(.2,1.2,.3,1)'});
@@ -750,11 +773,23 @@ const today=()=>new Date().toISOString().slice(0,10);
 function bonusUi(){
  $('bRepost').disabled=S.day===today();$('bRepost').textContent=S.day===today()?'Завтра снова':'Сделать репост';
  const b=$('bSub1');b.disabled=!!S.subs.sub1;b.textContent=S.subs.sub1?'Готово':'Подписаться'}
-$('bSub1').onclick=()=>{if(S.subs.sub1)return;S.subs.sub1=1;add(1);save();bonusUi();toast('+1 монета');
- tg?.openTelegramLink?tg.openTelegramLink(CH1):window.open(CH1)};
-$('bRepost').onclick=()=>{if(S.day===today())return;S.day=today();add(1);save();bonusUi();toast('+1 монета');
- const u='https://t.me/share/url?url='+encodeURIComponent(inv)+'&text='+encodeURIComponent('Играй в Brainrot Clicker!');tg?.openTelegramLink?tg.openTelegramLink(u):window.open(u)};
-const inv=`https://t.me/${BOT}?start=ref_${tg?.initDataUnsafe?.user?.id||0}`;
+$('bSub1').onclick=async()=>{
+ if(S.subs.sub1)return;
+ if(!INIT){toast('Открой игру через Telegram');return}
+ tg?.openTelegramLink?tg.openTelegramLink(CH1):window.open(CH1);   // сначала ведём подписываться
+ const r=await api('/api/claim',{kind:'sub1'});
+ if(r.ok){S.subs.sub1=1;add(r.amount);save();bonusUi();toast('+'+f(r.amount)+' монета')}
+ else if(r.error==='not_subscribed')toast('Подпишись на канал, потом нажми ещё раз');
+ else if(r.error==='already'){S.subs.sub1=1;bonusUi()}
+ else toast('Не получилось проверить подписку, попробуй ещё раз')};
+$('bRepost').onclick=async()=>{
+ if(S.day===today())return;
+ const u='https://t.me/share/url?url='+encodeURIComponent(inv)+'&text='+encodeURIComponent('Играй в Brainrot Clicker!');
+ tg?.openTelegramLink?tg.openTelegramLink(u):window.open(u);
+ if(!INIT)return;
+ const r=await api('/api/claim',{kind:'repost'});
+ if(r.ok){S.day=today();add(r.amount);save();bonusUi();toast('+'+f(r.amount)+' монета')}};
+const inv=`https://t.me/${BOT}?start=ref_${TU?.id||0}`;
 $('bInv').onclick=()=>{const u='https://t.me/share/url?url='+encodeURIComponent(inv)+'&text='+encodeURIComponent('Играй в Brainrot Clicker!');tg?tg.openTelegramLink(u):window.open(u)};
 bonusUi();
 
@@ -785,17 +820,20 @@ function closeDep(){$('dep').classList.remove('on')}
 function tab(n){$('d1').style.display=n===1?'block':'none';$('d2').style.display=n===2?'block':'none';$('t1').classList.toggle('on',n===1);$('t2').classList.toggle('on',n===2)}
 function calc(){const n=Math.floor(+$('sn').value)||0;$('sget').textContent=f(n*STAR_RATE);
  $('sinfo').textContent=`Укажи, сколько Stars хочешь отправить. 1 звезда = ${STAR_RATE} монет. Админ получит заявку, напишет тебе, и ты отправишь Stars подарком. Затем он выдаст монеты.`}
-function sendReq(type,a,d){
- if(!tg?.sendData){toast('Открой игру через Telegram');return false}
- try{tg.sendData(JSON.stringify({t:type,a:a,d:d}));return true}
- catch(e){toast('Открой игру кнопкой «🎮 Играть» внизу чата с ботом');return false}}
-function payStars(){const n=Math.floor(+$('sn').value);if(!(n>=1)){toast('Укажи количество Stars');return}
- sendReq('deposit',+(n*STAR_RATE).toFixed(2),'Stars: '+n)}
-function req(type){
+async function sendReq(type,a,d){
+ if(!INIT){toast('Открой игру через Telegram');return false}
+ const r=await api('/api/request',{type,amount:a,details:d});
+ if(!r.ok){toast('Не получилось отправить заявку, попробуй позже');return false}
+ toast('Заявка отправлена, жди подтверждения от админа');return true}
+async function payStars(){const n=Math.floor(+$('sn').value);if(!(n>=1)){toast('Укажи количество Stars');return}
+ if(await sendReq('deposit',+(n*STAR_RATE).toFixed(2),'Stars: '+n))closeDep()}
+async function req(type){
  const a=+$(type==='deposit'?'da':'wa').value;if(!(a>0)){toast('Укажи сумму');return}
  let d='';if(type==='withdraw'){d=$('wd').value.trim();if(a<MIN_WD){toast('Минимум '+MIN_WD);return}if(a>S.c){toast('Недостаточно монет');return}if(!d){toast('Укажи реквизиты');return}}
  if(type==='withdraw'){S.c-=a;S.out=(S.out||0)+a;save();hud();renderProf()}   // монеты списываются сразу; при отказе бот пришлёт кнопку возврата
- if(!sendReq(type,a,d)){if(type==='withdraw'){S.c+=a;S.out-=a;save();hud();renderProf()}return}
+ const ok=await sendReq(type,a,d);
+ if(!ok){if(type==='withdraw'){S.c+=a;S.out-=a;save();hud();renderProf()}return}
+ closeDep();
 }
 
 /* навигация */
@@ -812,6 +850,7 @@ function go(n){cur=n;PAGES.forEach(p=>$('p_'+p).classList.toggle('on',p===n));
 tg?.setHeaderColor?.('#120b1f');tg?.setBackgroundColor?.('#120b1f');
 render();
 startFx();
+syncServer();
 </script>
 </body>
 </html>
