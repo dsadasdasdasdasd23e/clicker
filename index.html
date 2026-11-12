@@ -13,6 +13,15 @@ html,body{overflow-x:clip;max-width:100vw}
 body{margin:0;font-family:'Manrope',system-ui,sans-serif;font-weight:600;color:#fff;min-height:100vh;padding-bottom:92px;
  background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(255,130,40,.26),transparent 60%),radial-gradient(ellipse 60% 40% at 100% 65%,rgba(110,60,220,.2),transparent 60%),#0f0a1c;background-attachment:fixed}
 .u{font-family:'Unbounded',sans-serif;font-weight:800}
+/* ---------- загрузочный экран: скрывает появление настоящих картинок из img/ ---------- */
+#boot{position:fixed;inset:0;z-index:999;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(255,130,40,.26),transparent 60%),radial-gradient(ellipse 60% 40% at 100% 65%,rgba(110,60,220,.2),transparent 60%),#0f0a1c;transition:opacity .4s ease,visibility .4s}
+#boot.hide{opacity:0;visibility:hidden;pointer-events:none}
+.bootbox{text-align:center}
+.bootlogo{font-size:22px;line-height:1.25;letter-spacing:.5px;background:linear-gradient(90deg,#ffd24a,#ff7a1a);-webkit-background-clip:text;background-clip:text;color:transparent;animation:bootpulse 1.4s ease-in-out infinite}
+@keyframes bootpulse{0%,100%{transform:scale(1);opacity:.92}50%{transform:scale(1.04);opacity:1}}
+.bootbar{width:140px;height:6px;border-radius:99px;background:rgba(255,255,255,.1);margin:22px auto 0;overflow:hidden}
+.bootbar i{display:block;width:40%;height:100%;border-radius:99px;background:linear-gradient(90deg,#ffd24a,#ff6a00);animation:bootload 1.1s ease-in-out infinite}
+@keyframes bootload{0%{transform:translateX(-100%)}100%{transform:translateX(350%)}}
 /* ---------- шапка ---------- */
 .hdr{position:sticky;top:0;z-index:6;display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(15,10,28,.72);-webkit-backdrop-filter:blur(18px) saturate(1.4);backdrop-filter:blur(18px) saturate(1.4);border-bottom:1px solid var(--line)}
 .logo{font-size:13px;line-height:1.05;flex:none;letter-spacing:.3px}
@@ -39,8 +48,10 @@ section{display:none;padding:14px 14px 6px;position:relative;z-index:1}section.o
 .bt.g{background:linear-gradient(#7dffa0,#18b853);color:#06220f}
 .bt.r{background:linear-gradient(#ff8a9a,#e0243f);color:#fff}
 .bt.w{width:100%}
-input{font-family:inherit;font-weight:700;font-size:17px;padding:13px;border-radius:14px;border:1px solid var(--line);background:rgba(10,6,22,.6);color:#fff;width:100%;margin:5px 0;user-select:text;outline:none;transition:border-color .2s,box-shadow .2s}
-input:focus{border-color:var(--or);box-shadow:0 0 0 3px rgba(255,154,60,.18)}
+input,select{font-family:inherit;font-weight:700;font-size:17px;padding:13px;border-radius:14px;border:1px solid var(--line);background:rgba(10,6,22,.6);color:#fff;width:100%;margin:5px 0;user-select:text;outline:none;transition:border-color .2s,box-shadow .2s}
+input:focus,select:focus{border-color:var(--or);box-shadow:0 0 0 3px rgba(255,154,60,.18)}
+select{user-select:none}
+select option{background:#1a1030;color:#fff}
 .sub{font-size:12.5px;color:var(--mut);font-weight:600}
 .row{display:flex;gap:8px}.row>*{flex:1}
 /* ---------- клик ---------- */
@@ -247,6 +258,8 @@ section.enter .stg>:nth-child(n+6),section.enter>:nth-child(n+7){animation-delay
 </style>
 </head>
 <body>
+<div id="boot"><div class="bootbox"><div class="bootlogo u">BRAINROT<br>CLICKER</div><div class="bootbar"><i></i></div></div></div>
+<script>try{if(sessionStorage.getItem('bc_boot_seen'))document.getElementById('boot').style.display='none'}catch(e){}</script>
 <div id="bgfx"></div>
 <div class="hdr">
  <div class="logo u">BRAINROT<b>CLICKER</b></div>
@@ -271,7 +284,7 @@ section.enter .stg>:nth-child(n+6),section.enter>:nth-child(n+7){animation-delay
   <div class="chip"><span class="sub">Онлайн/мин</span><b id="rOn"></b></div>
  </div>
  <div class="sub" id="supl" style="text-align:center;margin-top:12px"></div>
- <div class="sub" style="text-align:center;margin-top:6px">Офлайн-доход: <b id="rOff" style="color:#fff"></b> в минуту</div>
+ <div class="sub" style="text-align:center;margin-top:6px">Офлайн-доход: <b id="rOff" style="color:#fff"></b> в час</div>
 </section>
 
 <section id="p_games">
@@ -306,6 +319,8 @@ section.enter .stg>:nth-child(n+6),section.enter>:nth-child(n+7){animation-delay
  <button class="mr hot" onclick="go('up')"><div class="mi" data-ic="up" data-s="28"></div><div class="t">Прокачка<small>Клики, авто‑фарм, энергия</small></div><i data-ic="chev"></i></button>
  <button class="mr" onclick="go('bonus')"><div class="mi" data-ic="gift" data-s="28"></div><div class="t">Бонусы<small>Репост, подписки, друзья</small></div><i data-ic="chev"></i></button>
  <button class="mr" onclick="go('cash')"><div class="mi" data-ic="wallet" data-s="28"></div><div class="t">Касса<small>Пополнить и вывести</small></div><i data-ic="chev"></i></button>
+ <button class="mr" onclick="go('top')"><div class="mi" data-ic="tap2" data-s="28"></div><div class="t">Лидеры<small>Топ игроков по кликам</small></div><i data-ic="chev"></i></button>
+ <button class="mr" onclick="go('inv')"><div class="mi" data-ic="box" data-s="28"></div><div class="t">Инвентарь<small>Брейнроты: пополнить, вывести</small></div><i data-ic="chev"></i></button>
 </section>
 
 <section id="p_prof"><div class="sec u" style="font-size:24px">Профиль</div>
@@ -333,11 +348,45 @@ section.enter .stg>:nth-child(n+6),section.enter>:nth-child(n+7){animation-delay
 
 <section id="p_cash"><button class="bt dk" onclick="go('menu')"><i data-ic="back" data-s="18"></i>Меню</button>
  <div class="sec u" style="margin-top:14px"><i data-ic="wallet"></i>Касса</div>
- <div class="card"><div class="u" style="font-size:15px">Пополнить</div><div class="sub" style="margin:4px 0 12px">Telegram Stars или заявка администратору</div>
+ <div class="card"><div class="u" style="font-size:15px">Пополнить звёздами</div><div class="sub" style="margin:4px 0 12px">Telegram Stars или заявка администратору</div>
   <button class="bt w" onclick="openDep()"><i data-ic="plus" data-s="18"></i>Пополнить баланс</button></div>
- <div class="card"><div class="u" style="font-size:15px;margin-bottom:4px">Вывести</div><div class="sub" id="rt" style="margin-bottom:8px"></div>
-  <input id="wa" type="number" placeholder="Сумма в монетах"><input id="wd" placeholder="Карта / кошелёк">
-  <button class="bt r w" style="margin-top:6px" onclick="req('withdraw')">Отправить заявку</button></div></section>
+ <div class="card"><div class="u" style="font-size:15px">Пополнить брейнротом</div><div class="sub" style="margin:4px 0 12px">Передай брейнрот администратору в Roblox — после подтверждения тебе начислятся монеты по его стоимости.</div>
+  <button class="bt w" onclick="openBrDep()"><i data-ic="plus" data-s="18"></i>Пополнить брейнротом</button></div>
+ </section>
+
+<section id="p_top"><button class="bt dk" onclick="go('menu')"><i data-ic="back" data-s="18"></i>Меню</button>
+ <div class="sec u" style="margin-top:14px"><i data-ic="tap2"></i>Лидеры</div>
+ <div class="seg"><button id="tt1" class="on" onclick="topTab(1)">За всё время</button><button id="tt2" onclick="topTab(2)">Топ недели</button></div>
+ <div class="card" id="topAllC"><div class="sub" style="margin-bottom:8px">Рейтинг по количеству кликов, без наград — просто для истории.</div><div id="topAll"></div></div>
+ <div class="card" id="topWeekC" style="display:none"><div class="sub" style="margin-bottom:8px">Каждую неделю: 1‑е место — 50 монет, 2–3‑е — 30 монет, 4–10‑е — 15 монет. В конце недели счётчик обнуляется.</div><div id="topWeek"></div></div>
+</section>
+
+<section id="p_inv"><button class="bt dk" onclick="go('menu')"><i data-ic="back" data-s="18"></i>Меню</button>
+ <div class="sec u" style="margin-top:14px"><i data-ic="box"></i>Инвентарь брейнротов</div>
+ <div class="card"><div class="sub" style="margin-bottom:8px">Сюда попадают брейнроты, купленные в Магазине. Их можно вывести в Roblox — админ получит заявку с твоим ником и сам передаст предмет.</div>
+  <div id="invList"></div>
+  <div class="row" style="margin-top:10px"><button class="bt w" onclick="openBrWd()"><i data-ic="box" data-s="18"></i>Вывести брейнрот</button></div>
+ </div></section>
+
+<div class="ov" id="brdep" onclick="if(event.target===this)closeBrDep()"><div class="md">
+ <div class="mh"><h3 class="u">Пополнить брейнротом</h3><button class="x" onclick="closeBrDep()" data-ic="close" data-s="20"></button></div>
+ <p class="sub" style="font-size:14px;line-height:1.5">Выбери брейнрот и укажи свой ник в Roblox. Заявка уйдёт администратору — после того как ты передашь ему брейнрот в игре и он подтвердит, тебе начислятся монеты по стоимости брейнрота.</p>
+ <div class="lab" style="margin:14px 0 4px">БРЕЙНРОТ</div>
+ <div style="display:flex;align-items:center;gap:10px"><img id="brdImg" style="width:52px;height:52px;object-fit:contain;border-radius:12px;background:rgba(255,255,255,.06)" onerror="this.style.visibility='hidden'"><select id="brdSel" style="flex:1" oninput="$('brdImg').style.visibility='visible';$('brdImg').src=brImg(this.value)"></select></div>
+ <div class="lab" style="margin:14px 0 4px">КОЛИЧЕСТВО</div><input id="brdQty" type="number" min="1" value="1">
+ <div class="lab" style="margin:14px 0 4px">НИК В ROBLOX</div><input id="brdRbx" placeholder="Твой ник в Roblox">
+ <button class="bt w" style="margin-top:8px" onclick="sendBrDep()">Отправить заявку</button>
+</div></div>
+<div class="ov" id="brwd" onclick="if(event.target===this)closeBrWd()"><div class="md">
+ <div class="mh"><h3 class="u">Вывести брейнрот</h3><button class="x" onclick="closeBrWd()" data-ic="close" data-s="20"></button></div>
+ <p class="sub" style="font-size:14px;line-height:1.5">Выбери брейнрот из своего инвентаря и укажи ники — администратор передаст его тебе в Roblox.</p>
+ <div class="lab" style="margin:14px 0 4px">БРЕЙНРОТ</div>
+ <div style="display:flex;align-items:center;gap:10px"><img id="brwImg" style="width:52px;height:52px;object-fit:contain;border-radius:12px;background:rgba(255,255,255,.06)" onerror="this.style.visibility='hidden'"><select id="brwSel" style="flex:1" oninput="$('brwImg').style.visibility='visible';$('brwImg').src=brImg(this.value)"></select></div>
+ <div class="lab" style="margin:14px 0 4px">КОЛИЧЕСТВО</div><input id="brwQty" type="number" min="1" value="1">
+ <div class="lab" style="margin:14px 0 4px">НИК В TELEGRAM</div><input id="brwTg" placeholder="@username">
+ <div class="lab" style="margin:14px 0 4px">НИК В ROBLOX</div><input id="brwRbx" placeholder="Твой ник в Roblox">
+ <button class="bt r w" style="margin-top:8px" onclick="sendBrWd()">Отправить заявку</button>
+</div></div>
 
 <div class="ov" id="dep" onclick="if(event.target===this)closeDep()"><div class="md">
  <div class="mh"><h3 class="u">Депозит</h3><button class="x" onclick="closeDep()" data-ic="close" data-s="20"></button></div>
@@ -435,10 +484,13 @@ const f=n=>n.toFixed(2);
 let PEND=0;
 const maxE=()=>50+10*(S.lv.en-1);
 const cv=()=>0.01*(1+(S.lv.click-1)*0.5);
-const brainInc=()=>SHOP.reduce((a,b)=>a+(S.own[b.id]||0)*b.inc/60,0);
-const onRate=()=>S.lv.auto*0.02+brainInc();
-const offRate=()=>S.lv.farm*0.005+brainInc();
-const cost=k=>+(UP[k][3]*Math.pow(1.9,S.lv[k]-UP[k][2])).toFixed(2);
+const onRate=()=>S.lv.auto*0.02;
+const offRate=()=>S.lv.farm*0.1/3600;
+const FARM_COST=[20,40,70,90,125,170,250,350,450];   // стоимость прокачки автофермы по уровням 1..9
+const maxLv=k=>k==='farm'?FARM_COST.length:10;
+const cost=k=>{
+ if(k==='farm'){const l=S.lv.farm;return l>=FARM_COST.length?FARM_COST[FARM_COST.length-1]:FARM_COST[l]}
+ return +(UP[k][3]*Math.pow(1.9,S.lv[k]-UP[k][2])).toFixed(2)};
 const rar=i=>`<span class="rar" style="background:${BR[i][2]}${i===9?';color:#00222a':''}">${BR[i][1]}</span>`;
 let REFS=[],STAR_RATE=1.5,REF_REW=1;
 const TU=tg?.initDataUnsafe?.user;
@@ -451,16 +503,45 @@ async function api(path,body){
   return await r.json();
  }catch(e){return{ok:false,error:'network'}}
 }
+let BRAINROTS=["Кеш оф карт","Гарама","Ла секрет","Бургуро","Фоксини","Венуспино","Ла каса","Дракон"];
+const BRAINROT_IMG={'Кеш оф карт':'brainrot_cash.png','Гарама':'brainrot_garama.png','Ла секрет':'brainrot_lasecret.png','Бургуро':'brainrot_burguro.png','Фоксини':'brainrot_foxini.png','Венуспино':'brainrot_venuspino.png','Ла каса':'brainrot_lacasa.png','Дракон':'brainrot_dragon.png'};
+const brImg=name=>BRAINROT_IMG[name]?`img/${BRAINROT_IMG[name]}`:'';
 async function syncServer(){
  const r=await api('/api/me',{});
  if(!r.ok)return;
- if(r.grant)add(r.grant);
+ if(typeof r.balance==='number'){S.c=r.balance;LASTC=r.balance}
+ if(typeof r.clicks==='number'){S.cl=r.clicks;LASTCL=r.clicks}
  if(r.star_rate)STAR_RATE=r.star_rate;
  if(r.ref_reward)REF_REW=r.ref_reward;
+ if(r.inventory)S.inv=r.inventory;
+ if(r.brainrots)BRAINROTS=r.brainrots;
  REFS=r.refs||[];S.refn=REFS.length;
  (r.claimed||[]).forEach(k=>{if(k==='sub1')S.subs.sub1=1;if(k.startsWith('repost:'))S.day=today()});
- save();render();
+ save();render();renderInv();
 }
+/* синхронизация баланса и кликов с сервером: баланс привязан к аккаунту, а не к устройству —
+   периодически отправляем разницу (дельту) с момента прошлой синхронизации, и сервер её прибавляет */
+let LASTC=0,LASTCL=0,SYNCING=false;
+async function syncDelta(useBeacon){
+ if(!INIT||SYNCING)return;
+ const dC=+(S.c-LASTC).toFixed(4),dCl=S.cl-LASTCL;
+ if(!dC&&!dCl)return;
+ const body=JSON.stringify({initData:INIT,coins:dC,clicks:dCl});
+ if(useBeacon&&navigator.sendBeacon){
+  try{navigator.sendBeacon(API_BASE+'/api/sync',new Blob([body],{type:'application/json'}))}catch(e){}
+  LASTC=S.c;LASTCL=S.cl;return;
+ }
+ SYNCING=true;
+ try{
+  const rr=await fetch(API_BASE+'/api/sync',{method:'POST',headers:{'Content-Type':'application/json'},body,keepalive:true});
+  const r=await rr.json();
+  if(r.ok){LASTC=S.c;LASTCL=S.cl;if(typeof r.balance==='number'&&Math.abs(r.balance-S.c)>0.001){S.c=r.balance;LASTC=r.balance;hud()}}
+ }catch(e){}
+ SYNCING=false;
+}
+setInterval(()=>syncDelta(false),7000);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)syncDelta(true)});
+window.addEventListener('pagehide',()=>syncDelta(true));
 function toast(t){const x=$('toast');x.textContent=t;x.style.display='block';x.classList.remove('show');void x.offsetWidth;x.classList.add('show');clearTimeout(x._t);x._t=setTimeout(()=>x.style.display='none',2200)}
 function add(n){S.c=Math.max(0,S.c+n);hud()}
 function hud(){
@@ -472,7 +553,7 @@ function hud(){
    $('lvsub').textContent=S.c>=c?'Хватает монет! Нажми, чтобы улучшить до «'+BR[S.lv.click][0]+'»':'Ещё '+f(c-S.c)+' монет до «'+BR[S.lv.click][0]+'»'}}
  $('supl').textContent=S.lv.sup>0?`Суперклик через ${100-(S.cl%100)} кликов: +${f(S.lv.sup*.5)} монет`:'Суперкликер не куплен: каждый 100‑й клик без бонуса';
  $('cl').textContent=S.cl;$('cv').textContent=cv().toFixed(3);
- $('rOn').textContent=f(onRate()*60);$('rOff').textContent=f(offRate()*60);
+ $('rOn').textContent=f(onRate()*60);$('rOff').textContent=f(offRate()*3600);
  document.querySelectorAll('[data-p]').forEach(b=>{if(!b.dataset.max)b.disabled=S.c<+b.dataset.p});
 }
 function render(){
@@ -480,10 +561,10 @@ function render(){
  $('brain').innerHTML=art(i);if(window._lv&&window._lv!==S.lv.click)popNew();window._lv=S.lv.click;$('bname').textContent=BR[i][0];$('bname').style.color=BR[i][2];
  $('rar').innerHTML=rar(i);$('stage').style.setProperty('--rc',BR[i][2]);
  $('nth').innerHTML=i<9?art(i+1):'';$('next').style.visibility=i<9?'visible':'hidden';
- $('ups').innerHTML=Object.keys(UP).map(k=>{const u=UP[k],l=S.lv[k],mx=l>=10,c=cost(k);
-  return `<div class="card up" data-k="${k}"><div class="mi">${ic(u[4],26)}</div><div class="ti"><b>${u[0]} · ${l}/10</b><div class="sub">${u[1]}</div><div class="sub" style="color:#ffd9a8">${detail(k)}</div><div class="pips">${Array.from({length:10},(_,j)=>`<i class="${j<l?'on':''}"></i>`).join('')}</div></div><button class="bt" ${mx?'data-max="1" disabled':`data-p="${c}"`} onclick="buy('${k}')">${mx?'MAX':'<i class="coin s"></i>'+c}</button></div>`}).join('');
+ $('ups').innerHTML=Object.keys(UP).map(k=>{const u=UP[k],l=S.lv[k],M=maxLv(k),mx=l>=M,c=cost(k);
+  return `<div class="card up" data-k="${k}"><div class="mi">${ic(u[4],26)}</div><div class="ti"><b>${u[0]} · ${l}/${M}</b><div class="sub">${u[1]}</div><div class="sub" style="color:#ffd9a8">${detail(k)}</div><div class="pips">${Array.from({length:M},(_,j)=>`<i class="${j<l?'on':''}"></i>`).join('')}</div></div><button class="bt" ${mx?'data-max="1" disabled':`data-p="${c}"`} onclick="buy('${k}')">${mx?'MAX':'<i class="coin s"></i>'+c}</button></div>`}).join('');
  $('cases').innerHTML=CASES.map((c,i)=>`<button class="cc" style="--cc:${c.c}" data-p="${c.p}" onclick="openCase(${i})"><div class="tag">до ×5</div><div class="cimg"><img src="img/case${i+1}.PNG" alt=""></div><div class="cn">${c.n}</div><div class="cf"><span>5 призов</span><span class="price"><i class="coin s"></i>${c.p}</span></div></button>`).join('');
- $('shop').innerHTML=SHOP.map(b=>`<div class="pc" data-id="${b.id}"><div class="pa" style="--pc:${b.c}">${art(b.a)}</div>${rar(b.a)}<div class="pn">${b.n} ×${S.own[b.id]||0}</div><div class="pi">+${b.inc} монет в минуту</div><button class="bt w" data-p="${b.p}" onclick="buyB('${b.id}')">Купить <span class="price" style="padding:3px 9px;background:#0003"><i class="coin s"></i>${b.p}</span></button></div>`).join('');
+ $('shop').innerHTML=SHOP.map(b=>`<div class="pc" data-id="${b.id}"><div class="pa" style="--pc:${b.c}">${art(b.a)}</div>${rar(b.a)}<div class="pn">${b.n} ×${S.own[b.id]||0}</div><div class="pi">Попадает в инвентарь — выводится в Roblox</div><button class="bt w" data-p="${b.p}" onclick="buyB('${b.id}')">Купить <span class="price" style="padding:3px 9px;background:#0003"><i class="coin s"></i>${b.p}</span></button></div>`).join('');
  $('drops').innerHTML=S.drops.length?S.drops.map(d=>`<div class="dc" style="border-color:${d.m>=1?'#2fa056':'#a8344a'};color:${d.m>=1?'#6dffa0':'#ff7a8a'}">×${d.m}<small>${f(d.w)} монет</small></div>`).join(''):'<div class="sub">Открой первый кейс</div>';
  const av=u=>u?.photo_url?`<img src="${u.photo_url}">`:(u?.first_name||'?')[0];
  $('av').innerHTML=av(TU);$('av2').innerHTML=av(TU);
@@ -491,13 +572,13 @@ function render(){
  document.querySelectorAll('[data-a]').forEach(el=>el.innerHTML=art(+el.dataset.a));
  document.querySelectorAll('[data-ic]').forEach(el=>el.innerHTML=ic(el.dataset.ic,+el.dataset.s||24));
  {const hk=Object.keys(HAS).length;if(window._bgk!==hk){window._bgk=hk;buildBg()}}
- renderNav();bonusUi();$('rt').textContent=RATE;hud();
+ renderNav();bonusUi();hud();
 }
 
 function renderProf(){
  $('pname').textContent=TU?[TU.first_name,TU.last_name].filter(Boolean).join(' '):'Игрок';
  $('puser').textContent=TU?.username?'@'+TU.username:'';
- $('pid').textContent=TU?'ID: '+TU.id:'Открыто вне Telegram [DEBUG2: tg='+(!!tg)+' plat='+(tg?.platform||'-')+' ver='+(tg?.version||'-')+' init='+(INIT?INIT.length:'0')+' hash='+(location.hash?location.hash.length:'0')+' search='+(location.search?location.search.length:'0')+' unsafe='+JSON.stringify(tg?.initDataUnsafe||{}).slice(0,80)+' href='+location.href.slice(0,90)+']';
+ $('pid').textContent=TU?'ID: '+TU.id:'Открыто вне Telegram';
  $('pbal').textContent=f(S.c);
  $('best').textContent=S.best?`×${S.best.m} · ${f(S.best.w)} монет · ${S.best.n}`:'Пока пусто — открой кейс, чтобы тут появился лучший дроп';
  $('pst').innerHTML=[['box',S.cases||0,'КЕЙСЫ'],['tap',S.cl,'КЛИКИ'],['tap2',S.lv.click,'УРОВЕНЬ'],['wallet',f(S.out||0),'ВЫВЕДЕНО']].map(r=>`<div class="sg">${ic(r[0],26)}<b>${r[1]}</b><span>${r[2]}</span></div>`).join('');
@@ -514,9 +595,9 @@ function popNew(){
  setTimeout(()=>toast('Новый браинрот: '+BR[S.lv.click-1][0]+'!'),300);
 }
 const cvAt=l=>0.01*(1+(l-1)*.5);
-function detail(k){const l=S.lv[k],n=Math.min(10,l+1);
- const fx={click:v=>cvAt(v).toFixed(3)+' за клик',farm:v=>f(v*0.005*60)+' монет/мин',auto:v=>f(v*0.02*60)+' монет/мин',sup:v=>'+'+f(v*0.5)+' монет',en:v=>(50+10*(v-1))+' энергии'}[k];
- return (k==='sup'?'Каждый 100‑й клик: ':'Сейчас: ')+fx(l)+(l>=10?'':' → '+fx(n))}
+function detail(k){const l=S.lv[k],n=Math.min(maxLv(k),l+1);
+ const fx={click:v=>cvAt(v).toFixed(3)+' за клик',farm:v=>f(v*0.1)+' монет/ч',auto:v=>f(v*0.02*60)+' монет/мин',sup:v=>'+'+f(v*0.5)+' монет',en:v=>(50+10*(v-1))+' энергии'}[k];
+ return (k==='sup'?'Каждый 100‑й клик: ':'Сейчас: ')+fx(l)+(l>=maxLv(k)?'':' → '+fx(n))}
 
 /* ===== ЭФФЕКТЫ ===== */
 const R_=(a,b)=>a+Math.random()*(b-a);
@@ -591,12 +672,15 @@ function peeker(){
 }
 function startFx(){requestAnimationFrame(bgLoop);setTimeout(peeker,2200)}
 
-function buy(k){const c=cost(k);if(S.lv[k]>=10||S.c<c)return;S.c-=c;S.lv[k]++;if(k==='en')S.e+=10;save();render();
+function buy(k){const c=cost(k);if(S.lv[k]>=maxLv(k)||S.c<c)return;S.c-=c;S.lv[k]++;if(k==='en')S.e+=10;save();render();
  pulse(document.querySelector(`.up[data-k="${k}"]`));tg?.HapticFeedback?.impactOccurred('medium')}
+const SHOP_BRAINROT={garama:'Гарама',dragon:'Дракон'};   // эти товары магазина дают предмет в инвентарь для вывода
 function buyB(id){const b=SHOP.find(x=>x.id===id);if(S.c<b.p)return;S.c-=b.p;S.own[id]=(S.own[id]||0)+1;save();render();
  const el=document.querySelector(`.pc[data-id="${id}"]`);
  if(el){pulse(el);const a=el.querySelector('.pa>*');a&&a.animate([{transform:'scale(1)'},{transform:'scale(1.3) rotate(-8deg)',offset:.4},{transform:'scale(1)'}],{duration:520,easing:'cubic-bezier(.3,1.6,.5,1)'})}
- tg?.HapticFeedback?.notificationOccurred('success');toast('Куплен '+b.n+'!')}
+ tg?.HapticFeedback?.notificationOccurred('success');toast('Куплен '+b.n+'!');
+ const br=SHOP_BRAINROT[id];
+ if(br){S.inv=S.inv||{};S.inv[br]=(S.inv[br]||0)+1;save();renderInv();api('/api/add_inventory',{brainrot:br,qty:1})}}
 
 /* ===== КЕЙС: открытие с прокруткой ===== */
 const TC={0.2:'#8b90a8',0.6:'#3aa0ff',1:'#34d27b',2:'#b04bff',5:'#ffb000'};
@@ -836,21 +920,70 @@ async function req(type){
  closeDep();
 }
 
+/* ===== лидеры (ТОП по кликам) ===== */
+function topTab(n){$('topAllC').style.display=n===1?'block':'none';$('topWeekC').style.display=n===2?'block':'none';
+ $('tt1').classList.toggle('on',n===1);$('tt2').classList.toggle('on',n===2)}
+function topRows(list,withRewards){
+ if(!list||!list.length)return '<div class="sub">Пока нет данных</div>';
+ const rw=[50,30,30,15,15,15,15,15,15,15];
+ return list.map((r,i)=>`<div class="mr" style="margin:6px 0;padding:10px 12px;cursor:default"><div class="mi" style="width:34px;height:34px;font-family:'Unbounded';font-size:13px">${i+1}</div><div class="t" style="font-size:14px">${String(r.name||'Игрок').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}<small>${r.clicks} кликов</small></div>${withRewards?`<span class="sub">+${rw[i]||0}</span>`:''}</div>`).join('')}
+async function loadTop(){
+ $('topAll').innerHTML='<div class="sub">Загрузка…</div>';$('topWeek').innerHTML='';
+ const r=await api('/api/leaderboard',{});
+ if(!r.ok){$('topAll').innerHTML='<div class="sub">Не получилось загрузить таблицу</div>';return}
+ $('topAll').innerHTML=topRows(r.all,false);$('topWeek').innerHTML=topRows(r.week,true);
+}
+
+/* ===== инвентарь брейнротов (пополнение / вывод за реальные роблокс-брейнроты) ===== */
+function renderInv(){
+ const inv=S.inv||{};const keys=Object.keys(inv).filter(k=>inv[k]>0);
+ $('invList').innerHTML=keys.length?keys.map(k=>`<div style="display:inline-flex;align-items:center;gap:7px;margin:4px;padding:6px 12px 6px 6px;border-radius:99px;background:rgba(255,255,255,.07)"><img src="${brImg(k)}" style="width:28px;height:28px;object-fit:contain;border-radius:8px" onerror="this.style.display='none'"><span>${k} ×${inv[k]}</span></div>`).join(''):'<div class="sub">Инвентарь пуст</div>';
+}
+function fillBrSel(sel,opts){sel.innerHTML=opts.map(n=>`<option value="${n}">${n}</option>`).join('')}
+function openBrDep(){const opts=BRAINROTS;fillBrSel($('brdSel'),opts);$('brdImg').style.visibility='visible';$('brdImg').src=brImg(opts[0]);$('brdQty').value=1;$('brdRbx').value='';$('brdep').classList.add('on')}
+function closeBrDep(){$('brdep').classList.remove('on')}
+async function sendBrDep(){
+ if(!INIT){toast('Открой игру через Telegram');return}
+ const brainrot=$('brdSel').value,qty=Math.max(1,Math.floor(+$('brdQty').value||1)),roblox=$('brdRbx').value.trim();
+ if(!roblox){toast('Укажи ник в Roblox');return}
+ const r=await api('/api/request',{type:'deposit_brainrot',brainrot,qty,roblox});
+ if(!r.ok){toast('Не получилось отправить заявку');return}
+ toast('Заявка отправлена, жди подтверждения от админа');closeBrDep();
+}
+function openBrWd(){
+ const inv=S.inv||{};const keys=Object.keys(inv).filter(k=>inv[k]>0);
+ if(!keys.length){toast('В инвентаре пока нет брейнротов');return}
+ fillBrSel($('brwSel'),keys);$('brwImg').style.visibility='visible';$('brwImg').src=brImg(keys[0]);$('brwQty').value=1;$('brwTg').value=TU?.username?('@'+TU.username):'';$('brwRbx').value='';$('brwd').classList.add('on');
+}
+function closeBrWd(){$('brwd').classList.remove('on')}
+async function sendBrWd(){
+ if(!INIT){toast('Открой игру через Telegram');return}
+ const brainrot=$('brwSel').value,qty=Math.max(1,Math.floor(+$('brwQty').value||1)),tgn=$('brwTg').value.trim(),roblox=$('brwRbx').value.trim();
+ if(!roblox){toast('Укажи ник в Roblox');return}
+ if((S.inv?.[brainrot]||0)<qty){toast('Недостаточно этого брейнрота в инвентаре');return}
+ S.inv[brainrot]-=qty;save();renderInv();
+ const r=await api('/api/request',{type:'withdraw_brainrot',brainrot,qty,tg:tgn,roblox});
+ if(!r.ok){S.inv[brainrot]+=qty;save();renderInv();toast('Не получилось отправить заявку');return}
+ toast('Заявка отправлена, жди подтверждения от админа');closeBrWd();
+}
+
 /* навигация */
 const NAV=[['click','Клик','tap'],['games','Игры','gamepad'],['cases','Кейсы','box'],['shop','Магазин','cart'],['menu','Меню','menu']];
-const PAGES=['click','games','cases','shop','menu','up','bonus','cash','prof','ref'];let cur='click';
-function renderNav(){const act=['up','bonus','cash','prof','ref'].includes(cur)?'menu':cur,nv=$('nav');
+const PAGES=['click','games','cases','shop','menu','up','bonus','cash','prof','ref','top','inv'];let cur='click';
+function renderNav(){const act=['up','bonus','cash','prof','ref','top','inv'].includes(cur)?'menu':cur,nv=$('nav');
  if(!nv.firstChild)nv.innerHTML=NAV.map(n=>`<button data-n="${n[0]}" onclick="go('${n[0]}')">${ic(n[2],24)}${n[1]}</button>`).join('');
  nv.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.n===act))}
 function go(n){cur=n;PAGES.forEach(p=>$('p_'+p).classList.toggle('on',p===n));
  const s=$('p_'+n);s.classList.remove('enter');void s.offsetWidth;s.classList.add('enter');setTimeout(()=>s.classList.remove('enter'),900);
- if(n==='games')G(0);window.scrollTo(0,0);renderNav();
+ if(n==='games')G(0);if(n==='top')loadTop();if(n==='inv')renderInv();window.scrollTo(0,0);renderNav();
  const ico=document.querySelector('#nav button.on svg');ico&&ico.animate([{transform:'scale(1)'},{transform:'scale(1.35) translateY(-3px)'},{transform:'scale(1)'}],{duration:420,easing:'cubic-bezier(.3,1.6,.5,1)'});
  tg?.HapticFeedback?.selectionChanged?.()}
 tg?.setHeaderColor?.('#120b1f');tg?.setBackgroundColor?.('#120b1f');
 render();
 startFx();
 syncServer();
+/* показываем загрузочный экран только один раз за сессию (первые ~1.6с), чтобы скрыть подгрузку настоящих картинок из img/ — дальше, при переключении вкладок/страниц, он больше не появляется */
+setTimeout(()=>{$('boot')?.classList.add('hide');try{sessionStorage.setItem('bc_boot_seen','1')}catch(e){}},1600);
 </script>
 </body>
 </html>
