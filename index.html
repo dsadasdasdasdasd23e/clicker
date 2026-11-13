@@ -372,8 +372,9 @@ section.enter .stg>:nth-child(n+6),section.enter>:nth-child(n+7){animation-delay
  <div class="mh"><h3 class="u">Пополнить брейнротом</h3><button class="x" onclick="closeBrDep()" data-ic="close" data-s="20"></button></div>
  <p class="sub" style="font-size:14px;line-height:1.5">Выбери брейнрот и укажи свой ник в Roblox. Заявка уйдёт администратору — после того как ты передашь ему брейнрот в игре и он подтвердит, тебе начислятся монеты по стоимости брейнрота.</p>
  <div class="lab" style="margin:14px 0 4px">БРЕЙНРОТ</div>
- <div style="display:flex;align-items:center;gap:10px"><img id="brdImg" style="width:52px;height:52px;object-fit:contain;border-radius:12px;background:rgba(255,255,255,.06)" onerror="this.style.visibility='hidden'"><select id="brdSel" style="flex:1" oninput="$('brdImg').style.visibility='visible';$('brdImg').src=brImg(this.value)"></select></div>
- <div class="lab" style="margin:14px 0 4px">КОЛИЧЕСТВО</div><input id="brdQty" type="number" min="1" value="1">
+ <div style="display:flex;align-items:center;gap:10px"><img id="brdImg" style="width:52px;height:52px;object-fit:contain;border-radius:12px;background:rgba(255,255,255,.06)" onerror="this.style.visibility='hidden'"><select id="brdSel" style="flex:1" oninput="brdUpd()"></select></div>
+ <div class="lab" style="margin:14px 0 4px">КОЛИЧЕСТВО</div><input id="brdQty" type="number" min="1" value="1" oninput="brdUpd()">
+ <div class="sub" style="text-align:center;margin:4px 0 0">Начислится: <b id="brdSum" style="color:#fff"></b> монет</div>
  <div class="lab" style="margin:14px 0 4px">НИК В ROBLOX</div><input id="brdRbx" placeholder="Твой ник в Roblox">
  <button class="bt w" style="margin-top:8px" onclick="sendBrDep()">Отправить заявку</button>
 </div></div>
@@ -476,10 +477,10 @@ const safeLS={
  set(k,v){try{localStorage.setItem(k,v)}catch(e){this._mem=this._mem||{};this._mem[k]=v}}
 };
 let S;
-try{S=JSON.parse(safeLS.get('br3')||'null')||null}catch(e){S=null}
+try{S=JSON.parse(safeLS.get('br4')||'null')||null}catch(e){S=null}
 S=S||{c:0,e:50,lv:{click:1,farm:0,auto:0,sup:0,en:1},cl:0,own:{},day:'',subs:{},used:{},last:Date.now(),le:Date.now()};
 S.drops=S.drops||[];
-const save=()=>{S.last=Date.now();try{safeLS.set('br3',JSON.stringify(S))}catch(e){}};
+const save=()=>{S.last=Date.now();try{safeLS.set('br4',JSON.stringify(S))}catch(e){}};
 const f=n=>n.toFixed(2);
 let PEND=0;
 const maxE=()=>50+10*(S.lv.en-1);
@@ -506,6 +507,7 @@ async function api(path,body){
 let BRAINROTS=["Кеш оф карт","Гарама","Ла секрет","Бургуро","Фоксини","Венуспино","Ла каса","Дракон"];
 const BRAINROT_IMG={'Кеш оф карт':'brainrot_cash.png','Гарама':'brainrot_garama.png','Ла секрет':'brainrot_lasecret.png','Бургуро':'brainrot_burguro.png','Фоксини':'brainrot_foxini.png','Венуспино':'brainrot_venuspino.png','Ла каса':'brainrot_lacasa.png','Дракон':'brainrot_dragon.png'};
 const brImg=name=>BRAINROT_IMG[name]?`img/${BRAINROT_IMG[name]}`:'';
+const BRAINROT_PRICE={'Кеш оф карт':50,'Гарама':65,'Ла секрет':65,'Бургуро':90,'Фоксини':300,'Венуспино':350,'Ла каса':450,'Дракон':700};
 async function syncServer(){
  const r=await api('/api/me',{});
  if(!r.ok)return;
@@ -515,27 +517,43 @@ async function syncServer(){
  if(r.ref_reward)REF_REW=r.ref_reward;
  if(r.inventory)S.inv=r.inventory;
  if(r.brainrots)BRAINROTS=r.brainrots;
+ if(r.state&&typeof r.state==='object'){
+  const st=r.state;
+  if(st.lv)S.lv=Object.assign(S.lv,st.lv);
+  if(st.own)S.own=st.own;
+  if(typeof st.e==='number')S.e=st.e;
+  if(st.day)S.day=st.day;
+  if(st.used)S.used=st.used;
+  if(st.subs)S.subs=Object.assign(S.subs,st.subs);
+  if(st.drops)S.drops=st.drops;
+  LASTST=JSON.stringify(stSnapshot());
+ }
  REFS=r.refs||[];S.refn=REFS.length;
  (r.claimed||[]).forEach(k=>{if(k==='sub1')S.subs.sub1=1;if(k.startsWith('repost:'))S.day=today()});
  save();render();renderInv();
 }
-/* синхронизация баланса и кликов с сервером: баланс привязан к аккаунту, а не к устройству —
-   периодически отправляем разницу (дельту) с момента прошлой синхронизации, и сервер её прибавляет */
-let LASTC=0,LASTCL=0,SYNCING=false;
+/* синхронизация всего прогресса с сервером: баланс, клики, уровни прокачки, энергия, магазин и т.д.
+   привязаны к аккаунту, а не к устройству — периодически отправляем монеты/клики дельтой (сервер их прибавляет),
+   а остальную прокачку — целиком (последняя отправка побеждает) */
+let LASTC=0,LASTCL=0,LASTST='',SYNCING=false;
+const stSnapshot=()=>({lv:S.lv,own:S.own,e:S.e,day:S.day,used:S.used,subs:S.subs,drops:S.drops});
 async function syncDelta(useBeacon){
  if(!INIT||SYNCING)return;
  const dC=+(S.c-LASTC).toFixed(4),dCl=S.cl-LASTCL;
- if(!dC&&!dCl)return;
- const body=JSON.stringify({initData:INIT,coins:dC,clicks:dCl});
+ const stNow=JSON.stringify(stSnapshot());const stChanged=stNow!==LASTST;
+ if(!dC&&!dCl&&!stChanged)return;
+ const payload={initData:INIT,coins:dC,clicks:dCl};
+ if(stChanged)payload.state=stSnapshot();
+ const body=JSON.stringify(payload);
  if(useBeacon&&navigator.sendBeacon){
   try{navigator.sendBeacon(API_BASE+'/api/sync',new Blob([body],{type:'application/json'}))}catch(e){}
-  LASTC=S.c;LASTCL=S.cl;return;
+  LASTC=S.c;LASTCL=S.cl;LASTST=stNow;return;
  }
  SYNCING=true;
  try{
   const rr=await fetch(API_BASE+'/api/sync',{method:'POST',headers:{'Content-Type':'application/json'},body,keepalive:true});
   const r=await rr.json();
-  if(r.ok){LASTC=S.c;LASTCL=S.cl;if(typeof r.balance==='number'&&Math.abs(r.balance-S.c)>0.001){S.c=r.balance;LASTC=r.balance;hud()}}
+  if(r.ok){LASTC=S.c;LASTCL=S.cl;LASTST=stNow;if(typeof r.balance==='number'&&Math.abs(r.balance-S.c)>0.001){S.c=r.balance;LASTC=r.balance;hud()}}
  }catch(e){}
  SYNCING=false;
 }
@@ -940,7 +958,9 @@ function renderInv(){
  $('invList').innerHTML=keys.length?keys.map(k=>`<div style="display:inline-flex;align-items:center;gap:7px;margin:4px;padding:6px 12px 6px 6px;border-radius:99px;background:rgba(255,255,255,.07)"><img src="${brImg(k)}" style="width:28px;height:28px;object-fit:contain;border-radius:8px" onerror="this.style.display='none'"><span>${k} ×${inv[k]}</span></div>`).join(''):'<div class="sub">Инвентарь пуст</div>';
 }
 function fillBrSel(sel,opts){sel.innerHTML=opts.map(n=>`<option value="${n}">${n}</option>`).join('')}
-function openBrDep(){const opts=BRAINROTS;fillBrSel($('brdSel'),opts);$('brdImg').style.visibility='visible';$('brdImg').src=brImg(opts[0]);$('brdQty').value=1;$('brdRbx').value='';$('brdep').classList.add('on')}
+function brdUpd(){const n=$('brdSel').value;$('brdImg').style.visibility='visible';$('brdImg').src=brImg(n);
+ const q=Math.max(1,Math.floor(+$('brdQty').value||1));$('brdSum').textContent=f((BRAINROT_PRICE[n]||0)*q)}
+function openBrDep(){const opts=BRAINROTS;fillBrSel($('brdSel'),opts);$('brdQty').value=1;$('brdRbx').value='';brdUpd();$('brdep').classList.add('on')}
 function closeBrDep(){$('brdep').classList.remove('on')}
 async function sendBrDep(){
  if(!INIT){toast('Открой игру через Telegram');return}
