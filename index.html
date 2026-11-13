@@ -104,7 +104,7 @@ select option{background:#1a1030;color:#fff}
 .neon{position:relative;border-radius:26px;border:1px solid rgba(255,74,102,.5);overflow:hidden;background:radial-gradient(ellipse at 50% 0,#43197f,#160835 74%);box-shadow:0 0 40px rgba(255,50,90,.18),inset 0 0 40px rgba(255,50,90,.1)}
 .neon::before{content:'';position:absolute;inset:0;pointer-events:none;opacity:.8;background-image:radial-gradient(1.2px 1.2px at 20px 40px,#fffa,#0000),radial-gradient(1.2px 1.2px at 110px 90px,#fff8,#0000),radial-gradient(1px 1px at 70px 150px,#fffa,#0000),radial-gradient(1.2px 1.2px at 150px 20px,#fff7,#0000),radial-gradient(1px 1px at 40px 110px,#fff8,#0000);background-size:170px 170px}
 .neon>*{position:relative}
-#cv2{display:block;width:100%;height:auto;aspect-ratio:360/450;background:none}
+#cv2{display:block;width:100%;height:auto;aspect-ratio:360/390;background:none}
 .bt.nb{border:1px solid rgba(255,74,102,.7);color:#ffd24a;background:linear-gradient(#2a0f4a,#12082a);box-shadow:0 6px 20px rgba(255,50,90,.25),inset 0 1px 0 rgba(255,255,255,.12)}
 .bt.nb.blk{background:linear-gradient(#26203a,#08040f);color:#fff;border-color:rgba(255,255,255,.35)}
 .bt.nb.rd{background:linear-gradient(#ff5a70,#c4122a);color:#fff;border-color:rgba(255,160,175,.8)}
@@ -297,7 +297,7 @@ section.enter .stg>:nth-child(n+6),section.enter>:nth-child(n+7){animation-delay
  </div>
  <div id="g1" style="display:none"><button class="bt dk" onclick="G(0)"><i data-ic="back" data-s="18"></i>Назад</button>
   <div class="mq" data-t="PLINKO">PLINKO</div>
-  <div class="neon"><canvas id="cv2" width="360" height="450"></canvas></div>
+  <div class="neon"><canvas id="cv2" width="360" height="390"></canvas></div>
   <div class="bets" id="pbets"></div>
   <div class="row"><input id="pb" type="number" step="0.01" min="0.01" value="0.1"><button class="bt nb rd" id="pgo">Бросить шар</button></div><div class="res" id="pres"></div></div>
  <div id="g2" style="display:none"><button class="bt dk" onclick="G(0)"><i data-ic="back" data-s="18"></i>Назад</button>
@@ -320,14 +320,15 @@ section.enter .stg>:nth-child(n+6),section.enter>:nth-child(n+7){animation-delay
  <button class="mr" onclick="go('bonus')"><div class="mi" data-ic="gift" data-s="28"></div><div class="t">Бонусы<small>Репост, подписки, друзья</small></div><i data-ic="chev"></i></button>
  <button class="mr" onclick="go('cash')"><div class="mi" data-ic="wallet" data-s="28"></div><div class="t">Касса<small>Пополнить и вывести</small></div><i data-ic="chev"></i></button>
  <button class="mr" onclick="go('top')"><div class="mi" data-ic="tap2" data-s="28"></div><div class="t">Лидеры<small>Топ игроков по кликам</small></div><i data-ic="chev"></i></button>
- <button class="mr" onclick="go('inv')"><div class="mi" data-ic="box" data-s="28"></div><div class="t">Инвентарь<small>Брейнроты: пополнить, вывести</small></div><i data-ic="chev"></i></button>
 </section>
 
 <section id="p_prof"><div class="sec u" style="font-size:24px">Профиль</div>
  <div class="card pfc"><div class="pf"><div class="ib av u" id="av2"></div><div class="u" id="pname" style="font-size:22px"></div><div class="sub" id="puser" style="font-size:15px;margin-top:4px"></div><div class="sub" id="pid" style="margin-top:2px"></div></div>
   <div class="balrow"><div><div class="lab">БАЛАНС</div><div class="u big2"><span id="pbal"></span><i class="coin"></i></div></div><button class="bt" onclick="openDep()"><i data-ic="plus" data-s="18"></i>Пополнить</button></div>
   <button class="mr" style="margin:0;padding:14px;border-radius:18px" onclick="go('ref')"><i data-ic="users" style="color:var(--or)"></i><div class="t" style="font-size:15px;font-family:'Unbounded'">Рефералы</div><i data-ic="chev"></i></button></div>
- <div class="card"><div class="lab" style="color:var(--or)">✦ ЛУЧШИЙ ДРОП</div><div id="best" class="sub" style="text-align:center;margin-top:12px;font-size:15px"></div></div>
+ <div class="card"><div class="lab" style="color:var(--or)">✦ ИНВЕНТАРЬ БРЕЙНРОТОВ</div>
+  <div id="invList" style="margin-top:10px"></div>
+  <button class="bt dk w" style="margin-top:10px" onclick="openBrWd()"><i data-ic="box" data-s="18"></i>Вывести брейнрот</button></div>
  <div class="card"><div class="lab">СТАТИСТИКА</div><div class="sgrid" id="pst"></div></div></section>
 <section id="p_ref"><button class="bt dk" onclick="go('prof')"><i data-ic="back" data-s="18"></i>Профиль</button>
  <div class="sec u" style="margin-top:14px"><i data-ic="users"></i>Рефералы</div>
@@ -361,13 +362,6 @@ section.enter .stg>:nth-child(n+6),section.enter>:nth-child(n+7){animation-delay
  <div class="card" id="topWeekC" style="display:none"><div class="sub" style="margin-bottom:8px">Каждую неделю: 1‑е место — 50 монет, 2–3‑е — 30 монет, 4–10‑е — 15 монет. В конце недели счётчик обнуляется.</div><div id="topWeek"></div></div>
 </section>
 
-<section id="p_inv"><button class="bt dk" onclick="go('menu')"><i data-ic="back" data-s="18"></i>Меню</button>
- <div class="sec u" style="margin-top:14px"><i data-ic="box"></i>Инвентарь брейнротов</div>
- <div class="card"><div class="sub" style="margin-bottom:8px">Сюда попадают брейнроты, купленные в Магазине. Их можно вывести в Roblox — админ получит заявку с твоим ником и сам передаст предмет.</div>
-  <div id="invList"></div>
-  <div class="row" style="margin-top:10px"><button class="bt w" onclick="openBrWd()"><i data-ic="box" data-s="18"></i>Вывести брейнрот</button></div>
- </div></section>
-
 <div class="ov" id="brdep" onclick="if(event.target===this)closeBrDep()"><div class="md">
  <div class="mh"><h3 class="u">Пополнить брейнротом</h3><button class="x" onclick="closeBrDep()" data-ic="close" data-s="20"></button></div>
  <p class="sub" style="font-size:14px;line-height:1.5">Выбери брейнрот и укажи свой ник в Roblox. Заявка уйдёт администратору — после того как ты передашь ему брейнрот в игре и он подтвердит, тебе начислятся монеты по стоимости брейнрота.</p>
@@ -390,14 +384,11 @@ section.enter .stg>:nth-child(n+6),section.enter>:nth-child(n+7){animation-delay
 </div></div>
 
 <div class="ov" id="dep" onclick="if(event.target===this)closeDep()"><div class="md">
- <div class="mh"><h3 class="u">Депозит</h3><button class="x" onclick="closeDep()" data-ic="close" data-s="20"></button></div>
- <div class="seg"><button id="t1" class="on" onclick="tab(1)"><i data-ic="burst" data-s="26"></i>TG Stars</button><button id="t2" onclick="tab(2)"><i data-ic="wallet" data-s="26"></i>Заявка</button></div>
+ <div class="mh"><h3 class="u">Пополнить звёздами</h3><button class="x" onclick="closeDep()" data-ic="close" data-s="20"></button></div>
  <div id="d1"><p class="sub" id="sinfo" style="font-size:14px;line-height:1.5"></p>
   <div class="lab" style="margin:14px 0 4px">КОЛИЧЕСТВО STARS</div><input id="sn" type="number" inputmode="numeric" placeholder="Например: 100" oninput="calc()">
   <div class="get"><span>Вы получите</span><b class="u"><i class="coin"></i><span id="sget">0</span></b></div>
   <button class="bt w" id="sbtn" onclick="payStars()">Отправить заявку</button></div>
- <div id="d2" style="display:none"><p class="sub" style="font-size:14px;line-height:1.5">Другой способ оплаты: отправь заявку, администратор свяжется с тобой и выдаст монеты.</p>
-  <input id="da" type="number" placeholder="Сумма в монетах"><button class="bt g w" style="margin-top:8px" onclick="req('deposit')">Отправить заявку</button></div>
 </div></div>
 <div class="ov cov" id="cov"><div class="cwrap">
  <div class="ctit u" id="ctit"></div>
@@ -598,7 +589,7 @@ function renderProf(){
  $('puser').textContent=TU?.username?'@'+TU.username:'';
  $('pid').textContent=TU?'ID: '+TU.id:'Открыто вне Telegram';
  $('pbal').textContent=f(S.c);
- $('best').textContent=S.best?`×${S.best.m} · ${f(S.best.w)} монет · ${S.best.n}`:'Пока пусто — открой кейс, чтобы тут появился лучший дроп';
+ renderInv();
  $('pst').innerHTML=[['box',S.cases||0,'КЕЙСЫ'],['tap',S.cl,'КЛИКИ'],['tap2',S.lv.click,'УРОВЕНЬ'],['wallet',f(S.out||0),'ВЫВЕДЕНО']].map(r=>`<div class="sg">${ic(r[0],26)}<b>${r[1]}</b><span>${r[2]}</span></div>`).join('');
  renderRefs();
 }
@@ -767,10 +758,10 @@ setInterval(()=>{const now=Date.now();
 /* ===== ПЛИНКО (неон) ===== */
 function G(n){[0,1,2].forEach(i=>$('g'+i).style.display=i===n?'block':'none');pv=n===1}
 let pv=false;
-const cvs=$('cv2'),cx=cvs.getContext('2d'),W=360,H=450;
-const ROWS=9,DX=22,DY=33,Y0=44,PR=3.5,BRr=7.5,SLOTS=7,SW=48,X0=(W-SLOTS*SW)/2,SY=372,SH=46;
+const cvs=$('cv2'),cx=cvs.getContext('2d'),W=360,H=390;
+const ROWS=8,DX=22,DY=28,Y0=38,PR=3.5,BRr=7.5,SLOTS=7,SW=48,X0=(W-SLOTS*SW)/2,SY=318,SH=40;
 const MULT=[8,2,0.5,0.3,0.5,2,8];
-const wl=y=>y<=308?108-(y-20)/3:12;
+const wl=y=>y<=234?108-(y-20)*96/214:12;
 const pegs=[];for(let r=0;r<ROWS;r++){const n=7+r,x0=W/2-(n-1)*DX/2;for(let i=0;i<n;i++)pegs.push([x0+i*DX,Y0+r*DY])}
 const ph=new Float64Array(pegs.length);
 const balls=[],hit={},parts=[];
@@ -782,7 +773,7 @@ $('pgo').onclick=()=>{const b=+$('pb').value;if(!(b>=.01)||b>S.c){toast('Нед�
 function step(){
  for(const o of balls){
   o.vy=Math.min(o.vy+.26,9);
-  if(o.y>30){const q=Math.min(1,(o.y-30)/260);o.vx=o.vx*(1-.08*q)+(o.tx-o.x)*.01*q}
+  if(o.y>30){const q=Math.min(1,(o.y-30)/220);o.vx=o.vx*(1-.08*q)+(o.tx-o.x)*.01*q}
   o.x+=o.vx;o.y+=o.vy;
   const l=wl(o.y)+BRr+2,r=W-wl(o.y)-BRr-2;
   if(o.x<l){o.x=l;o.vx=Math.abs(o.vx)*.5+.8}if(o.x>r){o.x=r;o.vx=-Math.abs(o.vx)*.5-.8}
@@ -807,7 +798,7 @@ let K=1;
 function fit(){const dpr=Math.min(window.devicePixelRatio||1,3),cw=cvs.clientWidth;if(!cw)return;K=cw*dpr/W;const tw=Math.round(W*K),th=Math.round(H*K);if(cvs.width!==tw||cvs.height!==th){cvs.width=tw;cvs.height=th}}
 function frame(){
  cx.lineJoin='round';cx.lineCap='round';
- const p=new Path2D();p.moveTo(108,20);p.lineTo(12,308);p.lineTo(12,426);p.quadraticCurveTo(12,438,26,438);p.lineTo(W-26,438);p.quadraticCurveTo(W-12,438,W-12,426);p.lineTo(W-12,308);p.lineTo(W-108,20);
+ const p=new Path2D();p.moveTo(108,20);p.lineTo(12,234);p.lineTo(12,366);p.quadraticCurveTo(12,378,26,378);p.lineTo(W-26,378);p.quadraticCurveTo(W-12,378,W-12,366);p.lineTo(W-12,234);p.lineTo(W-108,20);
  cx.fillStyle='rgba(255,255,255,.025)';cx.fill(p);
  cx.shadowColor='#ff2a4a';cx.shadowBlur=14;cx.strokeStyle='#ff3355';cx.lineWidth=2.4;cx.stroke(p);
  cx.shadowBlur=0;cx.strokeStyle='rgba(255,190,200,.85)';cx.lineWidth=1;cx.stroke(p);
@@ -989,13 +980,13 @@ async function sendBrWd(){
 
 /* навигация */
 const NAV=[['click','Клик','tap'],['games','Игры','gamepad'],['cases','Кейсы','box'],['shop','Магазин','cart'],['menu','Меню','menu']];
-const PAGES=['click','games','cases','shop','menu','up','bonus','cash','prof','ref','top','inv'];let cur='click';
-function renderNav(){const act=['up','bonus','cash','prof','ref','top','inv'].includes(cur)?'menu':cur,nv=$('nav');
+const PAGES=['click','games','cases','shop','menu','up','bonus','cash','prof','ref','top'];let cur='click';
+function renderNav(){const act=['up','bonus','cash','prof','ref','top'].includes(cur)?'menu':cur,nv=$('nav');
  if(!nv.firstChild)nv.innerHTML=NAV.map(n=>`<button data-n="${n[0]}" onclick="go('${n[0]}')">${ic(n[2],24)}${n[1]}</button>`).join('');
  nv.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.n===act))}
 function go(n){cur=n;PAGES.forEach(p=>$('p_'+p).classList.toggle('on',p===n));
  const s=$('p_'+n);s.classList.remove('enter');void s.offsetWidth;s.classList.add('enter');setTimeout(()=>s.classList.remove('enter'),900);
- if(n==='games')G(0);if(n==='top')loadTop();if(n==='inv')renderInv();window.scrollTo(0,0);renderNav();
+ if(n==='games')G(0);if(n==='top')loadTop();if(n==='prof')renderInv();window.scrollTo(0,0);renderNav();
  const ico=document.querySelector('#nav button.on svg');ico&&ico.animate([{transform:'scale(1)'},{transform:'scale(1.35) translateY(-3px)'},{transform:'scale(1)'}],{duration:420,easing:'cubic-bezier(.3,1.6,.5,1)'});
  tg?.HapticFeedback?.selectionChanged?.()}
 tg?.setHeaderColor?.('#120b1f');tg?.setBackgroundColor?.('#120b1f');
