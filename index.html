@@ -263,7 +263,7 @@ section.enter .stg>:nth-child(n+6),section.enter>:nth-child(n+7){animation-delay
 <div id="bgfx"></div>
 <div class="hdr">
  <div class="logo u">BRAINROT<b>CLICKER</b></div>
- <div class="bal"><i class="coin"></i><span class="u" id="coins">0</span><button class="plus" onclick="go('cash')" data-ic="plus" data-s="22"></button></div>
+ <div class="bal"><i class="coin"></i><span class="u" id="coins">0</span><button class="plus" onclick="openDep()" data-ic="plus" data-s="22"></button></div>
  <button class="ib" onclick="go('menu')" data-ic="gear" data-s="22"></button>
  <button class="ib av u" id="av" onclick="go('prof')"></button>
 </div>
@@ -318,7 +318,6 @@ section.enter .stg>:nth-child(n+6),section.enter>:nth-child(n+7){animation-delay
  <button class="mr" onclick="go('prof')"><div class="mi" data-ic="user" data-s="28"></div><div class="t">Профиль</div><i data-ic="chev"></i></button>
  <button class="mr hot" onclick="go('up')"><div class="mi" data-ic="up" data-s="28"></div><div class="t">Прокачка<small>Клики, авто‑фарм, энергия</small></div><i data-ic="chev"></i></button>
  <button class="mr" onclick="go('bonus')"><div class="mi" data-ic="gift" data-s="28"></div><div class="t">Бонусы<small>Репост, подписки, друзья</small></div><i data-ic="chev"></i></button>
- <button class="mr" onclick="go('cash')"><div class="mi" data-ic="wallet" data-s="28"></div><div class="t">Касса<small>Пополнить и вывести</small></div><i data-ic="chev"></i></button>
  <button class="mr" onclick="go('top')"><div class="mi" data-ic="tap2" data-s="28"></div><div class="t">Лидеры<small>Топ игроков по кликам</small></div><i data-ic="chev"></i></button>
 </section>
 
@@ -347,31 +346,13 @@ section.enter .stg>:nth-child(n+6),section.enter>:nth-child(n+7){animation-delay
  <div class="qc q4"><h3>Позови друга</h3><p>+1 монета за каждого друга</p><button class="bt" id="bInv">Пригласить</button><div class="qa" data-a="8"></div></div>
 </section>
 
-<section id="p_cash"><button class="bt dk" onclick="go('menu')"><i data-ic="back" data-s="18"></i>Меню</button>
- <div class="sec u" style="margin-top:14px"><i data-ic="wallet"></i>Касса</div>
- <div class="card"><div class="u" style="font-size:15px">Пополнить звёздами</div><div class="sub" style="margin:4px 0 12px">Telegram Stars или заявка администратору</div>
-  <button class="bt w" onclick="openDep()"><i data-ic="plus" data-s="18"></i>Пополнить баланс</button></div>
- <div class="card"><div class="u" style="font-size:15px">Пополнить брейнротом</div><div class="sub" style="margin:4px 0 12px">Передай брейнрот администратору в Roblox — после подтверждения тебе начислятся монеты по его стоимости.</div>
-  <button class="bt w" onclick="openBrDep()"><i data-ic="plus" data-s="18"></i>Пополнить брейнротом</button></div>
- </section>
-
 <section id="p_top"><button class="bt dk" onclick="go('menu')"><i data-ic="back" data-s="18"></i>Меню</button>
  <div class="sec u" style="margin-top:14px"><i data-ic="tap2"></i>Лидеры</div>
  <div class="seg"><button id="tt1" class="on" onclick="topTab(1)">За всё время</button><button id="tt2" onclick="topTab(2)">Топ недели</button></div>
  <div class="card" id="topAllC"><div class="sub" style="margin-bottom:8px">Рейтинг по количеству кликов, без наград — просто для истории.</div><div id="topAll"></div></div>
- <div class="card" id="topWeekC" style="display:none"><div class="sub" style="margin-bottom:8px">Каждую неделю: 1‑е место — 50 монет, 2–3‑е — 30 монет, 4–10‑е — 15 монет. В конце недели счётчик обнуляется.</div><div id="topWeek"></div></div>
+ <div class="card" id="topWeekC" style="display:none"><div class="sub" style="margin-bottom:10px;font-size:16px;font-weight:700;color:#fff;line-height:1.5">🏆 Каждую неделю:<br>1‑е место — 50 монет<br>2–3‑е — 30 монет<br>4–10‑е — 15 монет<br><span style="font-size:13px;font-weight:400;color:var(--mut)">В конце недели счётчик обнуляется.</span></div><div id="topWeek"></div></div>
 </section>
 
-<div class="ov" id="brdep" onclick="if(event.target===this)closeBrDep()"><div class="md">
- <div class="mh"><h3 class="u">Пополнить брейнротом</h3><button class="x" onclick="closeBrDep()" data-ic="close" data-s="20"></button></div>
- <p class="sub" style="font-size:14px;line-height:1.5">Выбери брейнрот и укажи свой ник в Roblox. Заявка уйдёт администратору — после того как ты передашь ему брейнрот в игре и он подтвердит, тебе начислятся монеты по стоимости брейнрота.</p>
- <div class="lab" style="margin:14px 0 4px">БРЕЙНРОТ</div>
- <div style="display:flex;align-items:center;gap:10px"><img id="brdImg" style="width:52px;height:52px;object-fit:contain;border-radius:12px;background:rgba(255,255,255,.06)" onerror="this.style.visibility='hidden'"><select id="brdSel" style="flex:1" oninput="brdUpd()"></select></div>
- <div class="lab" style="margin:14px 0 4px">КОЛИЧЕСТВО</div><input id="brdQty" type="number" min="1" value="1" oninput="brdUpd()">
- <div class="sub" style="text-align:center;margin:4px 0 0">Начислится: <b id="brdSum" style="color:#fff"></b> монет</div>
- <div class="lab" style="margin:14px 0 4px">НИК В ROBLOX</div><input id="brdRbx" placeholder="Твой ник в Roblox">
- <button class="bt w" style="margin-top:8px" onclick="sendBrDep()">Отправить заявку</button>
-</div></div>
 <div class="ov" id="brwd" onclick="if(event.target===this)closeBrWd()"><div class="md">
  <div class="mh"><h3 class="u">Вывести брейнрот</h3><button class="x" onclick="closeBrWd()" data-ic="close" data-s="20"></button></div>
  <p class="sub" style="font-size:14px;line-height:1.5">Выбери брейнрот из своего инвентаря и укажи ники — администратор передаст его тебе в Roblox.</p>
@@ -384,11 +365,30 @@ section.enter .stg>:nth-child(n+6),section.enter>:nth-child(n+7){animation-delay
 </div></div>
 
 <div class="ov" id="dep" onclick="if(event.target===this)closeDep()"><div class="md">
- <div class="mh"><h3 class="u">Пополнить звёздами</h3><button class="x" onclick="closeDep()" data-ic="close" data-s="20"></button></div>
+ <div class="mh"><h3 class="u">Пополнить</h3><button class="x" onclick="closeDep()" data-ic="close" data-s="20"></button></div>
+ <div class="seg"><button id="t1" class="on" onclick="tab(1)"><i data-ic="burst" data-s="26"></i>TG Stars</button><button id="t2" onclick="tab(2)"><i data-ic="box" data-s="26"></i>Брейнрот</button></div>
  <div id="d1"><p class="sub" id="sinfo" style="font-size:14px;line-height:1.5"></p>
   <div class="lab" style="margin:14px 0 4px">КОЛИЧЕСТВО STARS</div><input id="sn" type="number" inputmode="numeric" placeholder="Например: 100" oninput="calc()">
   <div class="get"><span>Вы получите</span><b class="u"><i class="coin"></i><span id="sget">0</span></b></div>
   <button class="bt w" id="sbtn" onclick="payStars()">Отправить заявку</button></div>
+ <div id="d2" style="display:none">
+  <div id="brdForm"><p class="sub" style="font-size:14px;line-height:1.5">Выбери брейнрот и укажи свой ник в Roblox. Заявка уйдёт администратору — после того как ты передашь ему брейнрот в игре и он подтвердит, тебе начислятся монеты по стоимости брейнрота.</p>
+   <div class="lab" style="margin:14px 0 4px">БРЕЙНРОТ</div>
+   <div style="display:flex;align-items:center;gap:10px"><img id="brdImg" style="width:52px;height:52px;object-fit:contain;border-radius:12px;background:rgba(255,255,255,.06)" onerror="this.style.visibility='hidden'"><select id="brdSel" style="flex:1" oninput="brdUpd()"></select></div>
+   <div class="lab" style="margin:14px 0 4px">КОЛИЧЕСТВО</div><input id="brdQty" type="number" min="1" value="1" oninput="brdUpd()">
+   <div class="sub" style="text-align:center;margin:4px 0 0">Начислится: <b id="brdSum" style="color:#fff"></b> монет</div>
+   <div class="lab" style="margin:14px 0 4px">НИК В ROBLOX</div><input id="brdRbx" placeholder="Твой ник в Roblox">
+   <button class="bt w" style="margin-top:8px" onclick="sendBrDep()">Отправить заявку</button></div>
+  <div id="brdStatus" style="display:none;border:1px solid rgba(120,220,160,.35);background:rgba(60,200,120,.1);border-radius:16px;padding:16px;text-align:center">
+   <div class="u" style="color:#7ee6a8;font-size:12px;letter-spacing:.5px;margin-bottom:8px">⏳ ОЖИДАЕТ ПОДТВЕРЖДЕНИЯ</div>
+   <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px"><img id="brdStImg" style="width:40px;height:40px;object-fit:contain"><div class="u" id="brdStName" style="font-size:16px"></div></div>
+   <p class="sub" style="font-size:13.5px;line-height:1.5;margin-bottom:10px">Отправь заявку в друзья и передай брейнрот в Roblox этому аккаунту. Как только администратор подтвердит получение — монеты зачислятся на баланс автоматически.</p>
+   <div id="brdNickBox" style="display:none;background:rgba(255,255,255,.07);border-radius:12px;padding:10px 14px;margin-bottom:12px">
+    <div class="sub" style="margin-bottom:3px">КОМУ ОТПРАВИТЬ ЗАЯВКУ В ДРУЗЬЯ</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><b class="u" id="brdNickTxt" style="font-size:17px"></b><button class="bt" style="padding:7px 14px;font-size:13px" onclick="copyNick()">Скопировать</button></div>
+   </div>
+   <button class="bt dk w" onclick="brdReset()">Отправить ещё одну заявку</button></div>
+ </div>
 </div></div>
 <div class="ov cov" id="cov"><div class="cwrap">
  <div class="ctit u" id="ctit"></div>
@@ -498,7 +498,8 @@ async function api(path,body){
 let BRAINROTS=["Кеш оф карт","Гарама","Ла секрет","Бургуро","Фоксини","Венуспино","Ла каса","Дракон"];
 const BRAINROT_IMG={'Кеш оф карт':'brainrot_cash.png','Гарама':'brainrot_garama.png','Ла секрет':'brainrot_lasecret.png','Бургуро':'brainrot_burguro.png','Фоксини':'brainrot_foxini.png','Венуспино':'brainrot_venuspino.png','Ла каса':'brainrot_lacasa.png','Дракон':'brainrot_dragon.png'};
 const brImg=name=>BRAINROT_IMG[name]?`img/${BRAINROT_IMG[name]}`:'';
-const BRAINROT_PRICE={'Кеш оф карт':50,'Гарама':65,'Ла секрет':65,'Бургуро':90,'Фоксини':300,'Венуспино':350,'Ла каса':450,'Дракон':700};
+let BRAINROT_PRICE={'Кеш оф карт':50,'Гарама':65,'Ла секрет':65,'Бургуро':90,'Фоксини':300,'Венуспино':350,'Ла каса':450,'Дракон':700};
+let ROBLOX_NICK='';
 async function syncServer(){
  const r=await api('/api/me',{});
  if(!r.ok)return;
@@ -508,6 +509,8 @@ async function syncServer(){
  if(r.ref_reward)REF_REW=r.ref_reward;
  if(r.inventory)S.inv=r.inventory;
  if(r.brainrots)BRAINROTS=r.brainrots;
+ if(r.brainrot_prices)BRAINROT_PRICE=r.brainrot_prices;
+ if(typeof r.roblox_nick==='string')ROBLOX_NICK=r.roblox_nick;
  if(r.state&&typeof r.state==='object'){
   const st=r.state;
   if(st.lv)S.lv=Object.assign(S.lv,st.lv);
@@ -908,7 +911,8 @@ async function applyGrant(){
 applyGrant();
 
 /* касса и депозит */
-function openDep(){$('dep').classList.add('on');calc()}
+function openDep(){$('dep').classList.add('on');calc();tab(1);brdReset();
+ fillBrSel($('brdSel'),BRAINROTS);$('brdQty').value=1;$('brdRbx').value='';brdUpd();}
 function closeDep(){$('dep').classList.remove('on')}
 function tab(n){$('d1').style.display=n===1?'block':'none';$('d2').style.display=n===2?'block':'none';$('t1').classList.toggle('on',n===1);$('t2').classList.toggle('on',n===2)}
 function calc(){const n=Math.floor(+$('sn').value)||0;$('sget').textContent=f(n*STAR_RATE);
@@ -951,15 +955,23 @@ function renderInv(){
 function fillBrSel(sel,opts){sel.innerHTML=opts.map(n=>`<option value="${n}">${n}</option>`).join('')}
 function brdUpd(){const n=$('brdSel').value;$('brdImg').style.visibility='visible';$('brdImg').src=brImg(n);
  const q=Math.max(1,Math.floor(+$('brdQty').value||1));$('brdSum').textContent=f((BRAINROT_PRICE[n]||0)*q)}
-function openBrDep(){const opts=BRAINROTS;fillBrSel($('brdSel'),opts);$('brdQty').value=1;$('brdRbx').value='';brdUpd();$('brdep').classList.add('on')}
-function closeBrDep(){$('brdep').classList.remove('on')}
 async function sendBrDep(){
  if(!INIT){toast('Открой игру через Telegram');return}
  const brainrot=$('brdSel').value,qty=Math.max(1,Math.floor(+$('brdQty').value||1)),roblox=$('brdRbx').value.trim();
  if(!roblox){toast('Укажи ник в Roblox');return}
  const r=await api('/api/request',{type:'deposit_brainrot',brainrot,qty,roblox});
  if(!r.ok){toast('Не получилось отправить заявку');return}
- toast('Заявка отправлена, жди подтверждения от админа');closeBrDep();
+ $('brdForm').style.display='none';$('brdStatus').style.display='block';
+ $('brdStImg').src=brImg(brainrot);$('brdStName').textContent=`${brainrot} ×${qty}`;
+ if(ROBLOX_NICK){$('brdNickBox').style.display='block';$('brdNickTxt').textContent=ROBLOX_NICK}else $('brdNickBox').style.display='none';
+ toast('Заявка отправлена, жди подтверждения от админа');
+}
+function brdReset(){$('brdStatus').style.display='none';$('brdForm').style.display='block'}
+function copyNick(){
+ if(!ROBLOX_NICK)return;
+ const done=()=>{toast('Ник скопирован');tg?.HapticFeedback?.notificationOccurred('success')};
+ if(navigator.clipboard?.writeText)navigator.clipboard.writeText(ROBLOX_NICK).then(done).catch(()=>toast(ROBLOX_NICK));
+ else toast(ROBLOX_NICK);
 }
 function openBrWd(){
  const inv=S.inv||{};const keys=Object.keys(inv).filter(k=>inv[k]>0);
@@ -980,8 +992,8 @@ async function sendBrWd(){
 
 /* навигация */
 const NAV=[['click','Клик','tap'],['games','Игры','gamepad'],['cases','Кейсы','box'],['shop','Магазин','cart'],['menu','Меню','menu']];
-const PAGES=['click','games','cases','shop','menu','up','bonus','cash','prof','ref','top'];let cur='click';
-function renderNav(){const act=['up','bonus','cash','prof','ref','top'].includes(cur)?'menu':cur,nv=$('nav');
+const PAGES=['click','games','cases','shop','menu','up','bonus','prof','ref','top'];let cur='click';
+function renderNav(){const act=['up','bonus','prof','ref','top'].includes(cur)?'menu':cur,nv=$('nav');
  if(!nv.firstChild)nv.innerHTML=NAV.map(n=>`<button data-n="${n[0]}" onclick="go('${n[0]}')">${ic(n[2],24)}${n[1]}</button>`).join('');
  nv.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.n===act))}
 function go(n){cur=n;PAGES.forEach(p=>$('p_'+p).classList.toggle('on',p===n));

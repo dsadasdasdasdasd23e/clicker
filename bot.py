@@ -16,6 +16,8 @@ from aiogram.types import (Message, CallbackQuery, PreCheckoutQuery, ReplyKeyboa
 TOKEN = "BOT_TOKEN"                                 # вставь токен от @BotFather
 BOT_USERNAME = "Brainclick_bot"                     # без @
 ADMIN_ID = 5948504163                               # твой Telegram ID
+# Roblox-ник, который видят все игроки ("кому отправить заявку в друзья"), задаётся не тут, а в самом боте:
+# команда /admin → кнопка "🎮 Roblox ник" → присылаешь ник. Меняется в любой момент без перезаливки файла.
 # index.html отдаётся НЕ этим сервером, а отдельно с GitHub Pages, поэтому сюда — адрес GitHub Pages:
 WEBAPP_URL = "https://dsadasdasdasdasd23e.github.io/clicker/"
 # а сюда — ТОЛЬКО источник (протокол+домен, без пути и без / на конце), ровно как его шлёт браузер в заголовке Origin:
@@ -30,7 +32,16 @@ BASE = Path(__file__).parent                # папка, где лежат bot.
 BRAINROTS = ["Кеш оф карт", "Гарама", "Ла секрет", "Бургуро", "Фоксини", "Венуспино", "Ла каса", "Дракон"]
 # цена в монетах за 1 штуку каждого брейнрота при пополнении (Касса → «Пополнить брейнротом»).
 # ЗАПОЛНИ РЕАЛЬНЫМИ ЦЕНАМИ, когда они будут готовы — больше ничего менять не нужно.
-BRAINROT_PRICES = {b: 0 for b in BRAINROTS}
+BRAINROT_PRICES = {
+    "Кеш оф карт": 50,
+    "Гарама": 65,
+    "Ла секрет": 65,
+    "Бургуро": 90,
+    "Фоксини": 300,
+    "Венуспино": 350,
+    "Ла каса": 450,
+    "Дракон": 700,
+}
 TOP_REWARDS = [50, 30, 30, 15, 15, 15, 15, 15, 15, 15]   # 1-е, 2-3-е, 4-10-е места недельного топа по кликам
 # ==============================================
 
@@ -51,7 +62,8 @@ CREATE TABLE IF NOT EXISTS inventory(user_id INTEGER, brainrot TEXT, qty INTEGER
 CREATE TABLE IF NOT EXISTS meta(key TEXT PRIMARY KEY, value TEXT);
 """)
 for col in ("name TEXT", "username TEXT", "banned INTEGER DEFAULT 0",
-            "balance REAL DEFAULT 0", "clicks INTEGER DEFAULT 0", "week_clicks INTEGER DEFAULT 0"):   # миграция старой базы
+            "balance REAL DEFAULT 0", "clicks INTEGER DEFAULT 0", "week_clicks INTEGER DEFAULT 0",
+            "state TEXT DEFAULT ''"):   # миграция старой базы; state — остальной прогресс (уровни прокачки, энергия и т.п.), привязан к аккаунту
     try: db.execute(f"ALTER TABLE users ADD COLUMN {col}")
     except sqlite3.OperationalError: pass
 db.commit()
@@ -137,16 +149,19 @@ def req_kb(rid, uid):
 
 # ======================= АДМИН-ПАНЕЛЬ =======================
 class F_(StatesGroup):
-    give = State(); take = State(); find = State(); ban = State(); cast = State(); give_to = State(); take_from = State()
+    give = State(); take = State(); find = State(); ban = State(); cast = State(); give_to = State(); take_from = State(); robnick = State()
 
 def panel_kb():
     r = lambda t, d: B(text=t, callback_data=d)
+    rn = q1("SELECT value FROM meta WHERE key='roblox_nick'")
+    rn = rn[0] if rn else "не задан"
     return InlineKeyboardMarkup(inline_keyboard=[
         [r("📊 Статистика", "adm:stat"), r("📥 Заявки", "adm:reqs")],
         [r("👥 Пользователи", "adm:users:0"), r("🔎 Найти игрока", "adm:find")],
         [r("⭐ Платежи Stars", "adm:pays")],
         [r("🎁 Выдать монеты", "adm:give"), r("➖ Списать монеты", "adm:take")],
-        [r("📣 Рассылка", "adm:cast"), r("🚫 Бан / разбан", "adm:ban")]])
+        [r("📣 Рассылка", "adm:cast"), r("🚫 Бан / разбан", "adm:ban")],
+        [r(f"🎮 Roblox ник: {rn}", "adm:robnick")]])
 
 @admin.message(Command("admin"))
 async def adm(m: Message, state: FSMContext):
@@ -265,6 +280,14 @@ async def a_find(c: CallbackQuery, state: FSMContext): await ask(c, state, F_.fi
 async def a_ban(c: CallbackQuery, state: FSMContext): await ask(c, state, F_.ban, "Пришли ID — переключу бан / разбан")
 @admin.callback_query(F.data == "adm:cast")
 async def a_cast(c: CallbackQuery, state: FSMContext): await ask(c, state, F_.cast, "Пришли текст рассылки (уйдёт всем игрокам). Отмена: /admin")
+@admin.callback_query(F.data == "adm:robnick")
+async def a_robnick(c: CallbackQuery, state: FSMContext): await ask(c, state, F_.robnick, "Пришли свой ник в Roblox — именно его увидят все игроки в игре как «кому отправить заявку в друзья». Можно менять в любой момент.")
+@admin.message(F_.robnick)
+async def do_robnick(m: Message, state: FSMContext):
+    nick = (m.text or "").strip()[:40]
+    if not nick: return await m.answer("Пустой ник не принят, пришли ещё раз")
+    ex("INSERT INTO meta(key,value) VALUES('roblox_nick',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value", (nick,))
+    await state.clear(); await m.answer(f"Готово! Roblox ник для игроков теперь: <b>{html.escape(nick)}</b>", reply_markup=panel_kb())
 
 async def money(m: Message, state: FSMContext, sign):
     try:
@@ -409,10 +432,15 @@ async def api_me(req):
     if total: ex("UPDATE users SET balance=balance+? WHERE id=?", (total, uid))
     claimed = [r[0] for r in qa("SELECT key FROM claims WHERE user_id=?", (uid,))]
     refs = [{"name": r[0] or "Игрок", "ts": r[1]} for r in qa("SELECT name,created FROM users WHERE ref=? ORDER BY created DESC LIMIT 50", (uid,))]
-    row = q1("SELECT balance,clicks FROM users WHERE id=?", (uid,)) or (0, 0)
+    row = q1("SELECT balance,clicks,state FROM users WHERE id=?", (uid,)) or (0, 0, '')
     inv = {r[0]: r[1] for r in qa("SELECT brainrot,qty FROM inventory WHERE user_id=? AND qty>0", (uid,))}
+    state = None
+    if row[2]:
+        try: state = json.loads(row[2])
+        except Exception: state = None
     return J({"ok": True, "grant": total, "claimed": claimed, "refs": refs, "star_rate": STARS_TO_COINS, "ref_reward": REWARD["ref"],
-              "balance": row[0] or 0, "clicks": row[1] or 0, "inventory": inv, "brainrots": BRAINROTS})
+              "balance": row[0] or 0, "clicks": row[1] or 0, "inventory": inv, "brainrots": BRAINROTS, "state": state,
+              "roblox_nick": (q1("SELECT value FROM meta WHERE key='roblox_nick'") or [""])[0], "brainrot_prices": BRAINROT_PRICES})
 
 async def api_sync(req):
     u, body = await auth(req)
@@ -424,6 +452,9 @@ async def api_sync(req):
     except Exception:
         return J({"ok": False, "error": "bad"})
     ex("UPDATE users SET balance=MAX(0,balance+?), clicks=clicks+?, week_clicks=week_clicks+? WHERE id=?", (coins, clicks, clicks, uid))
+    st = body.get("state")
+    if isinstance(st, dict):
+        ex("UPDATE users SET state=? WHERE id=?", (json.dumps(st, ensure_ascii=False)[:20000], uid))
     bal = q1("SELECT balance FROM users WHERE id=?", (uid,))[0] or 0
     return J({"ok": True, "balance": bal})
 
