@@ -246,6 +246,10 @@ section.enter .stg>:nth-child(4),section.enter>:nth-child(5){animation-delay:.15
 section.enter .stg>:nth-child(5),section.enter>:nth-child(6){animation-delay:.2s}
 section.enter .stg>:nth-child(n+6),section.enter>:nth-child(n+7){animation-delay:.25s}
 /* ---------- облегчённый режим для телефонов (меньше нагрузки на видеокарту) ---------- */
+/* ---------- плинко: на ПК доска слишком большая (на телефоне не трогаем) ---------- */
+@media (pointer:fine){
+ #g1 .neon{max-width:280px;margin-left:auto;margin-right:auto}
+}
 @media (pointer:coarse){
  #bgfx::before{animation:none;opacity:.8}
  .pa::before{animation:none}
@@ -355,13 +359,17 @@ section.enter .stg>:nth-child(n+6),section.enter>:nth-child(n+7){animation-delay
 
 <div class="ov" id="brwd" onclick="if(event.target===this)closeBrWd()"><div class="md">
  <div class="mh"><h3 class="u">Вывести брейнрот</h3><button class="x" onclick="closeBrWd()" data-ic="close" data-s="20"></button></div>
- <p class="sub" style="font-size:14px;line-height:1.5">Выбери брейнрот из своего инвентаря и укажи ники — администратор передаст его тебе в Roblox.</p>
- <div class="lab" style="margin:14px 0 4px">БРЕЙНРОТ</div>
- <div style="display:flex;align-items:center;gap:10px"><img id="brwImg" style="width:52px;height:52px;object-fit:contain;border-radius:12px;background:rgba(255,255,255,.06)" onerror="this.style.visibility='hidden'"><select id="brwSel" style="flex:1" oninput="$('brwImg').style.visibility='visible';$('brwImg').src=brImg(this.value)"></select></div>
- <div class="lab" style="margin:14px 0 4px">КОЛИЧЕСТВО</div><input id="brwQty" type="number" min="1" value="1">
- <div class="lab" style="margin:14px 0 4px">НИК В TELEGRAM</div><input id="brwTg" placeholder="@username">
- <div class="lab" style="margin:14px 0 4px">НИК В ROBLOX</div><input id="brwRbx" placeholder="Твой ник в Roblox">
- <button class="bt r w" style="margin-top:8px" onclick="sendBrWd()">Отправить заявку</button>
+ <div class="seg"><button id="bw1" class="on" onclick="brwTab(1)"><i class="coin s" style="margin-right:2px"></i>В монеты</button><button id="bw2" onclick="brwTab(2)"><i data-ic="box" data-s="22"></i>В Roblox</button></div>
+ <div class="lab" style="margin:0 0 4px">БРЕЙНРОТ</div>
+ <div style="display:flex;align-items:center;gap:10px"><img id="brwImg" style="width:52px;height:52px;object-fit:contain;border-radius:12px;background:rgba(255,255,255,.06)" onerror="this.style.visibility='hidden'"><select id="brwSel" style="flex:1" oninput="brwUpd()"></select></div>
+ <div class="lab" style="margin:14px 0 4px">КОЛИЧЕСТВО</div><input id="brwQty" type="number" min="1" value="1" oninput="brwUpd()">
+ <div id="bwCoinInfo" class="get" style="margin-top:4px"><span>Получишь сразу</span><b class="u"><i class="coin"></i><span id="bwSum">0</span></b></div>
+ <div id="bwRbxFields" style="display:none">
+  <p class="sub" style="font-size:13.5px;line-height:1.5;margin:8px 0">Укажи ники — администратор отправит тебе этот брейнрот трейдом в Roblox. Монеты за него не начисляются, ты получаешь обратно сам брейнрот.</p>
+  <div class="lab" style="margin:14px 0 4px">НИК В TELEGRAM</div><input id="brwTg" placeholder="@username">
+  <div class="lab" style="margin:14px 0 4px">НИК В ROBLOX</div><input id="brwRbx" placeholder="Твой ник в Roblox">
+ </div>
+ <button class="bt r w" style="margin-top:12px" id="brwBtn" onclick="sendBrWd()">Обменять на монеты</button>
 </div></div>
 
 <div class="ov" id="dep" onclick="if(event.target===this)closeDep()"><div class="md">
@@ -380,11 +388,13 @@ section.enter .stg>:nth-child(n+6),section.enter>:nth-child(n+7){animation-delay
    <div class="lab" style="margin:14px 0 4px">НИК В ROBLOX</div><input id="brdRbx" placeholder="Твой ник в Roblox">
    <button class="bt w" style="margin-top:8px" onclick="sendBrDep()">Отправить заявку</button></div>
   <div id="brdStatus" style="display:none;border:1px solid rgba(120,220,160,.35);background:rgba(60,200,120,.1);border-radius:16px;padding:16px;text-align:center">
-   <div class="u" style="color:#7ee6a8;font-size:12px;letter-spacing:.5px;margin-bottom:8px">⏳ ОЖИДАЕТ ПОДТВЕРЖДЕНИЯ</div>
+   <div class="u" style="color:#7ee6a8;font-size:12px;letter-spacing:.5px;margin-bottom:10px">ТВОЯ ОЧЕРЕДЬ</div>
+   <div style="font-size:14px;color:var(--mut);margin-bottom:2px">Отправь трейд сейчас</div>
+   <div class="u" id="brdTimer" style="font-size:40px;color:#7ee6a8;margin-bottom:10px">5:00</div>
    <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px"><img id="brdStImg" style="width:40px;height:40px;object-fit:contain"><div class="u" id="brdStName" style="font-size:16px"></div></div>
-   <p class="sub" style="font-size:13.5px;line-height:1.5;margin-bottom:10px">Отправь заявку в друзья и передай брейнрот в Roblox этому аккаунту. Как только администратор подтвердит получение — монеты зачислятся на баланс автоматически.</p>
+   <p class="sub" style="font-size:13.5px;line-height:1.5;margin-bottom:10px">Открой Roblox и отправь трейд этому аккаунту: положи в трейд брейнрот(ы) из заявки, себе ничего не бери. Как только администратор увидит и подтвердит трейд — монеты зачислятся на баланс автоматически.</p>
    <div id="brdNickBox" style="display:none;background:rgba(255,255,255,.07);border-radius:12px;padding:10px 14px;margin-bottom:12px">
-    <div class="sub" style="margin-bottom:3px">КОМУ ОТПРАВИТЬ ЗАЯВКУ В ДРУЗЬЯ</div>
+    <div class="sub" style="margin-bottom:3px">КОМУ ОТПРАВИТЬ ТРЕЙД</div>
     <div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><b class="u" id="brdNickTxt" style="font-size:17px"></b><button class="bt" style="padding:7px 14px;font-size:13px" onclick="copyNick()">Скопировать</button></div>
    </div>
    <button class="bt dk w" onclick="brdReset()">Отправить ещё одну заявку</button></div>
@@ -552,12 +562,15 @@ async function syncDelta(useBeacon){
  SYNCING=false;
 }
 setInterval(()=>syncDelta(false),7000);
+/* периодически подтягиваем с сервера то, что не может прийти локально: новых рефералов, одобренные админом
+   заявки (грант попадает в баланс), инвентарь, ник роблокса и т.п. — сначала сливаем локальную дельту, чтобы не потерять свежие клики */
+setInterval(async()=>{await syncDelta(false);await syncServer()},12000);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)syncDelta(true)});
 window.addEventListener('pagehide',()=>syncDelta(true));
 function toast(t){const x=$('toast');x.textContent=t;x.style.display='block';x.classList.remove('show');void x.offsetWidth;x.classList.add('show');clearTimeout(x._t);x._t=setTimeout(()=>x.style.display='none',2200)}
 function add(n){S.c=Math.max(0,S.c+n);hud()}
 function hud(){
- $('coins').textContent=f(Math.max(0,S.c-PEND));$('en').textContent=Math.floor(S.e)+' / '+maxE();
+ $('coins').textContent=f(Math.max(0,S.c-PEND));$('pbal').textContent=f(Math.max(0,S.c));$('en').textContent=Math.floor(S.e)+' / '+maxE();
  $('ebar').style.width=(S.e/maxE()*100)+'%';
  {const mx=S.lv.click>=10,c=cost('click');$('lvn').textContent=S.lv.click+' / 10';
   if(mx){$('lvbar').style.width='100%';$('lvt').textContent='MAX';$('lvsub').textContent='Максимальный уровень достигнут'}
@@ -955,6 +968,13 @@ function renderInv(){
 function fillBrSel(sel,opts){sel.innerHTML=opts.map(n=>`<option value="${n}">${n}</option>`).join('')}
 function brdUpd(){const n=$('brdSel').value;$('brdImg').style.visibility='visible';$('brdImg').src=brImg(n);
  const q=Math.max(1,Math.floor(+$('brdQty').value||1));$('brdSum').textContent=f((BRAINROT_PRICE[n]||0)*q)}
+let brdTmr=null;
+function brdCountdown(sec){
+ clearInterval(brdTmr);
+ const tick=()=>{const m=Math.max(0,Math.floor(sec/60)),s=Math.max(0,sec%60);$('brdTimer').textContent=m+':'+String(s).padStart(2,'0');
+  if(sec<=0){clearInterval(brdTmr);$('brdTimer').textContent='0:00';$('brdTimer').style.color='#ff8a9a'}sec--};
+ tick();brdTmr=setInterval(tick,1000);
+}
 async function sendBrDep(){
  if(!INIT){toast('Открой игру через Telegram');return}
  const brainrot=$('brdSel').value,qty=Math.max(1,Math.floor(+$('brdQty').value||1)),roblox=$('brdRbx').value.trim();
@@ -963,31 +983,47 @@ async function sendBrDep(){
  if(!r.ok){toast('Не получилось отправить заявку');return}
  $('brdForm').style.display='none';$('brdStatus').style.display='block';
  $('brdStImg').src=brImg(brainrot);$('brdStName').textContent=`${brainrot} ×${qty}`;
+ $('brdTimer').style.color='#7ee6a8';brdCountdown(300);
  if(ROBLOX_NICK){$('brdNickBox').style.display='block';$('brdNickTxt').textContent=ROBLOX_NICK}else $('brdNickBox').style.display='none';
  toast('Заявка отправлена, жди подтверждения от админа');
 }
-function brdReset(){$('brdStatus').style.display='none';$('brdForm').style.display='block'}
+function brdReset(){clearInterval(brdTmr);$('brdStatus').style.display='none';$('brdForm').style.display='block'}
 function copyNick(){
  if(!ROBLOX_NICK)return;
  const done=()=>{toast('Ник скопирован');tg?.HapticFeedback?.notificationOccurred('success')};
  if(navigator.clipboard?.writeText)navigator.clipboard.writeText(ROBLOX_NICK).then(done).catch(()=>toast(ROBLOX_NICK));
  else toast(ROBLOX_NICK);
 }
+let bwMode=1;
 function openBrWd(){
  const inv=S.inv||{};const keys=Object.keys(inv).filter(k=>inv[k]>0);
  if(!keys.length){toast('В инвентаре пока нет брейнротов');return}
- fillBrSel($('brwSel'),keys);$('brwImg').style.visibility='visible';$('brwImg').src=brImg(keys[0]);$('brwQty').value=1;$('brwTg').value=TU?.username?('@'+TU.username):'';$('brwRbx').value='';$('brwd').classList.add('on');
+ fillBrSel($('brwSel'),keys);$('brwQty').value=1;$('brwTg').value=TU?.username?('@'+TU.username):'';$('brwRbx').value='';
+ brwTab(1);brwUpd();$('brwd').classList.add('on');
 }
 function closeBrWd(){$('brwd').classList.remove('on')}
+function brwTab(n){bwMode=n;$('bw1').classList.toggle('on',n===1);$('bw2').classList.toggle('on',n===2);
+ $('bwCoinInfo').style.display=n===1?'flex':'none';$('bwRbxFields').style.display=n===2?'block':'none';
+ $('brwBtn').textContent=n===1?'Обменять на монеты':'Отправить заявку';$('brwBtn').className='bt w'+(n===2?' r':'');}
+function brwUpd(){const n=$('brwSel').value;$('brwImg').style.visibility='visible';$('brwImg').src=brImg(n);
+ const q=Math.max(1,Math.floor(+$('brwQty').value||1));$('bwSum').textContent=f((BRAINROT_PRICE[n]||0)*q)}
 async function sendBrWd(){
  if(!INIT){toast('Открой игру через Telegram');return}
- const brainrot=$('brwSel').value,qty=Math.max(1,Math.floor(+$('brwQty').value||1)),tgn=$('brwTg').value.trim(),roblox=$('brwRbx').value.trim();
- if(!roblox){toast('Укажи ник в Roblox');return}
+ const brainrot=$('brwSel').value,qty=Math.max(1,Math.floor(+$('brwQty').value||1));
  if((S.inv?.[brainrot]||0)<qty){toast('Недостаточно этого брейнрота в инвентаре');return}
+ if(bwMode===1)return sellBrainrot(brainrot,qty);
+ const tgn=$('brwTg').value.trim(),roblox=$('brwRbx').value.trim();
+ if(!roblox){toast('Укажи ник в Roblox');return}
  S.inv[brainrot]-=qty;save();renderInv();
  const r=await api('/api/request',{type:'withdraw_brainrot',brainrot,qty,tg:tgn,roblox});
  if(!r.ok){S.inv[brainrot]+=qty;save();renderInv();toast('Не получилось отправить заявку');return}
  toast('Заявка отправлена, жди подтверждения от админа');closeBrWd();
+}
+async function sellBrainrot(brainrot,qty){
+ const r=await api('/api/sell_brainrot',{brainrot,qty});
+ if(!r.ok){toast('Не получилось обменять, попробуй позже');return}
+ S.inv[brainrot]-=qty;S.c=r.balance;save();renderInv();hud();renderProf();
+ toast('+'+f(r.coins)+' монет');tg?.HapticFeedback?.notificationOccurred('success');closeBrWd();
 }
 
 /* навигация */
