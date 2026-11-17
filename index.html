@@ -533,7 +533,9 @@ async function syncServer(){
   LASTST=JSON.stringify(stSnapshot());
  }
  REFS=r.refs||[];S.refn=REFS.length;
- (r.claimed||[]).forEach(k=>{if(k==='sub1')S.subs.sub1=1;if(k.startsWith('repost:'))S.day=today()});
+ const repostKeyToday='repost:'+today();
+ (r.claimed||[]).forEach(k=>{if(k==='sub1')S.subs.sub1=1});
+ S.day=(r.claimed||[]).includes(repostKeyToday)?today():'';   // день репоста всегда берём из сервера, а не копим старое значение
  save();render();renderInv();
 }
 /* синхронизация всего прогресса с сервером: баланс, клики, уровни прокачки, энергия, магазин и т.д.
@@ -887,7 +889,7 @@ $('bSub1').onclick=async()=>{
  if(!INIT){toast('Открой игру через Telegram');return}
  tg?.openTelegramLink?tg.openTelegramLink(CH1):window.open(CH1);   // сначала ведём подписываться
  const r=await api('/api/claim',{kind:'sub1'});
- if(r.ok){S.subs.sub1=1;add(r.amount);save();bonusUi();toast('+'+f(r.amount)+' монета')}
+ if(r.ok){S.subs.sub1=1;if(typeof r.balance==='number'){S.c=r.balance;LASTC=r.balance;hud()}save();bonusUi();toast('+'+f(r.amount)+' монета')}
  else if(r.error==='not_subscribed')toast('Подпишись на канал, потом нажми ещё раз');
  else if(r.error==='already'){S.subs.sub1=1;bonusUi()}
  else toast('Не получилось проверить подписку, попробуй ещё раз')};
@@ -897,7 +899,7 @@ $('bRepost').onclick=async()=>{
  tg?.openTelegramLink?tg.openTelegramLink(u):window.open(u);
  if(!INIT)return;
  const r=await api('/api/claim',{kind:'repost'});
- if(r.ok){S.day=today();add(r.amount);save();bonusUi();toast('+'+f(r.amount)+' монета')}};
+ if(r.ok){S.day=today();if(typeof r.balance==='number'){S.c=r.balance;LASTC=r.balance;hud()}save();bonusUi();toast('+'+f(r.amount)+' монета')}};
 const inv=`https://t.me/${BOT}?start=ref_${TU?.id||0}`;
 $('bInv').onclick=()=>{const u='https://t.me/share/url?url='+encodeURIComponent(inv)+'&text='+encodeURIComponent('Играй в Brainrot Clicker!');tg?tg.openTelegramLink(u):window.open(u)};
 bonusUi();
