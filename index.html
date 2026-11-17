@@ -525,7 +525,7 @@ async function syncServer(){
   const st=r.state;
   if(st.lv)S.lv=Object.assign(S.lv,st.lv);
   if(st.own)S.own=st.own;
-  if(typeof st.e==='number')S.e=st.e;
+  if(typeof st.e==='number')S.e=Math.max(S.e,st.e);   // энергия копится локально между синками — никогда не откатываем её вниз значением с сервера
   if(st.day)S.day=st.day;
   if(st.used)S.used=st.used;
   if(st.subs)S.subs=Object.assign(S.subs,st.subs);
