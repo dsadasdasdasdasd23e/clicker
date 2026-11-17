@@ -899,7 +899,9 @@ $('bRepost').onclick=async()=>{
  tg?.openTelegramLink?tg.openTelegramLink(u):window.open(u);
  if(!INIT)return;
  const r=await api('/api/claim',{kind:'repost'});
- if(r.ok){S.day=today();if(typeof r.balance==='number'){S.c=r.balance;LASTC=r.balance;hud()}save();bonusUi();toast('+'+f(r.amount)+' монета')}};
+ if(r.ok){S.day=today();if(typeof r.balance==='number'){S.c=r.balance;LASTC=r.balance;hud()}save();bonusUi();toast('+'+f(r.amount)+' монета')}
+ else if(r.error==='already'){S.day=today();save();bonusUi();toast('Сегодняшний репост уже засчитан')}
+ else toast('Не получилось засчитать репост, попробуй ещё раз')};
 const inv=`https://t.me/${BOT}?start=ref_${TU?.id||0}`;
 $('bInv').onclick=()=>{const u='https://t.me/share/url?url='+encodeURIComponent(inv)+'&text='+encodeURIComponent('Играй в Brainrot Clicker!');tg?tg.openTelegramLink(u):window.open(u)};
 bonusUi();
